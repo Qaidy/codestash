@@ -95,6 +95,16 @@
     const db = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
     let currentUser = null;
 
+    // Kategori Bahasa untuk Kategori Cepat
+    const categories = [
+      { code: 'HTML', name: 'HTML & CSS', icon: '<i class="fa-brands fa-html5 text-orange-600 w-4 text-center"></i>', hoverBg: 'hover:bg-orange-50' },
+      { code: 'JavaScript', name: 'JavaScript', icon: '<i class="fa-brands fa-js text-yellow-500 w-4 text-center"></i>', hoverBg: 'hover:bg-yellow-50' },
+      { code: 'Dart', name: 'Dart / Flutter', icon: '<i class="fa-solid fa-code text-blue-500 w-4 text-center"></i>', hoverBg: 'hover:bg-sky-50' },
+      { code: 'PHP', name: 'PHP / Laravel', icon: '<i class="fa-brands fa-php text-purple-600 w-4 text-center"></i>', hoverBg: 'hover:bg-purple-50' },
+      { code: 'Python', name: 'Python', icon: '<i class="fa-brands fa-python text-emerald-600 w-4 text-center"></i>', hoverBg: 'hover:bg-emerald-50' },
+      { code: 'SQL', name: 'SQL Database', icon: '<i class="fa-solid fa-database text-cyan-600 w-4 text-center"></i>', hoverBg: 'hover:bg-cyan-50' },
+    ];
+
     // --- SIDEBAR & MOBILE LAYOUT WRAPPER ---
     async function renderLayout(activeMenu, innerHtmlContent) {
       const { data: { session } } = await db.auth.getSession();
@@ -106,12 +116,27 @@
       const currentHash = window.location.hash || '#/dashboard';
       const [routePath, queryString] = currentHash.split('?');
       const urlParams = new URLSearchParams(queryString || '');
+      const currentLang = urlParams.get('lang') || '';
       const currentPrivacy = urlParams.get('privacy') || '';
 
-      const isDashboardActive = (routePath === '#/dashboard' || routePath === '#/' || routePath === '') && !currentPrivacy;
+      const isDashboardActive = (routePath === '#/dashboard' || routePath === '#/' || routePath === '') && !currentLang && !currentPrivacy;
       const isNewActive = routePath === '#/new';
       const isPublicActive = currentPrivacy === 'public';
       const isPrivateActive = currentPrivacy === 'private';
+
+      const renderCategoryBtns = (isMobile = false) => categories.map(cat => {
+        const isActive = currentLang.toLowerCase() === cat.code.toLowerCase();
+        const clickHandler = isMobile ? 'onclick="toggleMobileMenu()"' : '';
+        return `
+          <a href="#/dashboard?lang=${cat.code}" ${clickHandler} class="flex items-center justify-between px-3 py-2 border-2 border-black font-bold text-xs transition-all ${isActive ? 'bg-black text-white shadow-neubrutal translate-x-[-1px] translate-y-[-1px]' : `bg-surface text-black shadow-neubrutal-sm hover:translate-x-[-2px] hover:translate-y-[-2px] hover:shadow-neubrutal ${cat.hoverBg}`} active:translate-x-0 active:translate-y-0 active:shadow-none">
+            <span class="flex items-center space-x-2.5">
+              ${cat.icon}
+              <span>${cat.name}</span>
+            </span>
+            <span class="text-[10px] font-mono ${isActive ? 'text-primary' : 'text-gray-400'}">⚡</span>
+          </a>
+        `;
+      }).join('');
 
       return `
         <!-- Mobile Top Navbar -->
@@ -179,6 +204,16 @@
                     </a>
                   </div>
                 </div>
+
+                <!-- Kategori Cepat -->
+                <div>
+                  <p class="text-[10px] font-black uppercase text-black tracking-wider mb-2 px-1 flex items-center gap-1.5">
+                    <span class="w-2 h-2 bg-primary inline-block border border-black"></span> Kategori Cepat
+                  </p>
+                  <div class="space-y-2">
+                    ${renderCategoryBtns(true)}
+                  </div>
+                </div>
               </div>
             </div>
 
@@ -239,6 +274,16 @@
                     </span>
                     <span class="text-[10px] font-mono px-1.5 py-0.5 border border-current ${isPrivateActive ? 'bg-white/10' : 'bg-rose-100 text-rose-800'}">PRIV</span>
                   </a>
+                </div>
+              </div>
+
+              <!-- Kategori Cepat -->
+              <div>
+                <p class="text-[10px] font-black uppercase text-black tracking-wider mb-2.5 px-1 flex items-center gap-1.5">
+                  <span class="w-2 h-2 bg-primary inline-block border border-black"></span> Kategori Cepat
+                </p>
+                <div class="space-y-2 font-bold text-xs">
+                  ${renderCategoryBtns(false)}
                 </div>
               </div>
             </div>
@@ -425,10 +470,21 @@
 
       const urlParams = new URLSearchParams(window.location.hash.split('?')[1] || '');
       const privacyQuery = urlParams.get('privacy');
+      const langQuery = urlParams.get('lang');
 
-      if (privacyQuery) {
-        const badgeEl = document.getElementById('filter-badge');
-        if (badgeEl) badgeEl.innerHTML = privacyQuery === 'public' ? '<i class="fa-solid fa-globe mr-1"></i> PUBLIC SNIPPETS' : '<i class="fa-solid fa-lock mr-1"></i> PRIVATE SNIPPETS';
+      const badgeEl = document.getElementById('filter-badge');
+      if (badgeEl) {
+        if (privacyQuery === 'public') {
+          badgeEl.innerHTML = '<i class="fa-solid fa-globe mr-1"></i> PUBLIC SNIPPETS';
+        } else if (privacyQuery === 'private') {
+          badgeEl.innerHTML = '<i class="fa-solid fa-lock mr-1"></i> PRIVATE SNIPPETS';
+        } else if (langQuery) {
+          const matchedCat = categories.find(c => c.code.toLowerCase() === langQuery.toLowerCase());
+          const catName = matchedCat ? matchedCat.name : langQuery.toUpperCase();
+          badgeEl.innerHTML = `<i class="fa-solid fa-code mr-1"></i> ${escapeHtml(catName)} SNIPPETS`;
+        } else {
+          badgeEl.innerHTML = '<i class="fa-solid fa-layer-group mr-1"></i> ALL SNIPPETS';
+        }
       }
 
       await fetchAndRenderSnippets();
@@ -436,11 +492,39 @@
       document.getElementById('search-input')?.addEventListener('input', () => fetchAndRenderSnippets());
     }
 
+    function matchCategory(snippetLang, filterCode) {
+      if (!filterCode) return true;
+      const s = (snippetLang || '').toLowerCase().trim();
+      const f = (filterCode || '').toLowerCase().trim();
+      if (!s) return false;
+
+      if (f === 'html' || f === 'css' || f === 'html,css' || f === 'html & css') {
+        return s === 'html' || s === 'css' || s.includes('html') || s.includes('css');
+      }
+      if (f === 'javascript' || f === 'js') {
+        return s === 'javascript' || s === 'js' || s.includes('javascript') || s.includes('typescript') || s === 'ts';
+      }
+      if (f === 'dart' || f === 'flutter') {
+        return s === 'dart' || s === 'flutter' || s.includes('dart') || s.includes('flutter');
+      }
+      if (f === 'php' || f === 'laravel') {
+        return s === 'php' || s === 'laravel' || s.includes('php') || s.includes('laravel');
+      }
+      if (f === 'python' || f === 'py') {
+        return s === 'python' || s === 'py' || s.includes('python');
+      }
+      if (f === 'sql' || f === 'database') {
+        return s.includes('sql') || s.includes('postgres') || s.includes('mysql');
+      }
+      return s === f || s.includes(f) || f.includes(s);
+    }
+
     async function fetchAndRenderSnippets() {
       const searchVal = (document.getElementById('search-input')?.value || '').toLowerCase().trim();
       
       const urlParams = new URLSearchParams(window.location.hash.split('?')[1] || '');
       const privacyQuery = urlParams.get('privacy');
+      const langQuery = urlParams.get('lang') || '';
 
       let query = db.from('snippets').select('*').order('created_at', { ascending: false });
       
@@ -462,14 +546,22 @@
       const filtered = (data || []).filter(s => {
         const matchTitle = (s.title || '').toLowerCase().includes(searchVal);
         const matchTags = Array.isArray(s.tags) && s.tags.some(t => (t || '').toLowerCase().includes(searchVal));
-        return matchTitle || matchTags;
+        const matchContent = (s.code_content || '').toLowerCase().includes(searchVal);
+        const matchSearch = !searchVal || matchTitle || matchTags || matchContent;
+        
+        const matchLang = matchCategory(s.language, langQuery);
+        return matchSearch && matchLang;
       });
 
       if (filtered.length === 0) {
+        const isFiltered = langQuery || searchVal || privacyQuery;
         grid.innerHTML = `
           <div class="col-span-full bg-surface border-2 border-border-color p-12 text-center shadow-neubrutal">
-            <p class="font-bold text-lg mb-2">Belum ada snippet ditemukan.</p>
-            <a href="#/new" class="inline-block bg-primary border-2 border-border-color px-4 py-2 font-bold text-sm shadow-neubrutal-sm"><i class="fa-solid fa-plus mr-1"></i> Buat Snippet Pertama</a>
+            <p class="font-bold text-lg mb-2">${isFiltered ? 'Tidak ada snippet yang cocok dengan kategori / pencarian ini.' : 'Belum ada snippet ditemukan.'}</p>
+            <div class="flex items-center justify-center gap-3 mt-4 flex-wrap">
+              ${isFiltered ? `<a href="#/dashboard" class="inline-block bg-white border-2 border-border-color px-4 py-2 font-bold text-sm shadow-neubrutal-sm hover:translate-x-[-2px] hover:translate-y-[-2px] hover:shadow-neubrutal active:translate-x-0 active:translate-y-0 active:shadow-none transition-all"><i class="fa-solid fa-arrow-left mr-1"></i> Lihat Semua Snippet</a>` : ''}
+              <a href="#/new" class="inline-block bg-primary border-2 border-border-color px-4 py-2 font-bold text-sm shadow-neubrutal-sm hover:translate-x-[-2px] hover:translate-y-[-2px] hover:shadow-neubrutal hover:bg-yellow-300 active:translate-x-0 active:translate-y-0 active:shadow-none transition-all"><i class="fa-solid fa-plus mr-1"></i> Buat Snippet</a>
+            </div>
           </div>
         `;
         return;
