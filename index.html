@@ -552,6 +552,128 @@
       return s === f || s.includes(f) || f.includes(s);
     }
 
+    // Default starter snippets collection
+    const defaultStarterSnippets = [
+      {
+        id: "starter-js-variables",
+        title: "Variables and Data Types",
+        language: "JavaScript",
+        code_content: `// JavaScript Variables and Data Types
+
+// 1. Variable Declarations
+let userName = "Alice";               // Block-scoped reassignable
+const API_URL = "https://api.dev";    // Block-scoped immutable reference
+var legacyScore = 100;                // Function-scoped (legacy)
+
+// 2. Primitive Data Types
+const text = "Hello CodeStash";       // String
+const count = 42;                     // Number (integer)
+const price = 19.99;                  // Number (float)
+const isAvailable = true;             // Boolean
+const notAssigned = undefined;        // Undefined
+const emptyValue = null;              // Null (intentional absence)
+const bigIntVal = 9007199254740991n;  // BigInt
+const sym = Symbol("uniqueId");       // Symbol
+
+// 3. Reference Types (Objects & Arrays)
+const tags = ["javascript", "tutorial", "starter"]; // Array
+const developer = {                   // Object
+  name: userName,
+  languages: ["JavaScript", "Python"],
+  isPro: true
+};
+
+console.log(typeof text, typeof count, typeof isAvailable);`,
+        tags: ["javascript", "variables", "datatypes", "basics", "starter"],
+        is_public: true,
+        created_at: new Date().toISOString()
+      },
+      {
+        id: "starter-py-variables",
+        title: "Python Variables and Data Types",
+        language: "Python",
+        code_content: `# Python Dynamic Typing & Core Data Types
+
+# 1. Variables & Numbers
+username = "Guido"           # str
+age = 32                     # int
+rating = 4.85                # float
+is_active = True             # bool
+nothing = None               # NoneType
+
+# 2. Collections
+skills = ["Python", "Django", "FastAPI"] # list (mutable)
+coordinates = (106.8456, -6.2088)       # tuple (immutable)
+unique_ids = {101, 102, 103}            # set (unique items)
+
+# 3. Dictionary (Key-Value map)
+user_profile = {
+    "username": username,
+    "age": age,
+    "skills": skills,
+    "is_active": is_active
+}
+
+print(f"User: {username}, Type: {type(user_profile)}")`,
+        tags: ["python", "variables", "datatypes", "basics"],
+        is_public: true,
+        created_at: new Date().toISOString()
+      },
+      {
+        id: "starter-dart-variables",
+        title: "Dart Variables and Null Safety",
+        language: "Dart",
+        code_content: `void main() {
+  // 1. Variable Inference & Immutability
+  var appName = 'CodeStash';
+  final DateTime launchedAt = DateTime.now(); // Runtime constant
+  const double pi = 3.14159;                 // Compile-time constant
+
+  // 2. Null Safety (? allows null, ! asserts non-null)
+  String? nullableBio;
+  nullableBio = null; // Valid
+
+  int score = 95; // Non-nullable
+  // score = null; // Error!
+
+  // 3. Collections
+  List<String> frameworks = ['Flutter', 'AngularDart'];
+  Map<String, dynamic> config = {'version': 1.0, 'debug': false};
+
+  print('$appName launched at $launchedAt (Score: $score)');
+}`,
+        tags: ["dart", "flutter", "variables", "nullsafety"],
+        is_public: true,
+        created_at: new Date().toISOString()
+      },
+      {
+        id: "starter-sql-basics",
+        title: "SQL Variables and Data Types",
+        language: "SQL",
+        code_content: `-- Common SQL Table with Core Data Types
+CREATE TABLE IF NOT EXISTS developers (
+    id SERIAL PRIMARY KEY,                    -- Auto-incrementing int
+    uuid_id UUID DEFAULT gen_random_uuid(),   -- UUID
+    username VARCHAR(50) NOT NULL UNIQUE,     -- Variable length string
+    bio TEXT,                                 -- Unlimited text
+    age INT CHECK (age >= 17),                -- Integer with constraint
+    hourly_rate NUMERIC(10, 2),               -- Fixed-point decimal
+    is_active BOOLEAN DEFAULT TRUE,           -- Boolean
+    tags TEXT[] DEFAULT '{}',                 -- Array of strings
+    metadata JSONB DEFAULT '{}',              -- JSON binary
+    created_at TIMESTAMPTZ DEFAULT NOW()      -- Timestamp with timezone
+);
+
+-- Basic Query
+SELECT username, hourly_rate, created_at
+FROM developers
+WHERE is_active = TRUE;`,
+        tags: ["sql", "database", "datatypes", "table"],
+        is_public: true,
+        created_at: new Date().toISOString()
+      }
+    ];
+
     async function fetchAndRenderSnippets(forceRefresh = false) {
       const grid = document.getElementById('snippets-grid');
       if (!grid) return;
@@ -559,11 +681,12 @@
       if (!snippetsCache || forceRefresh) {
         grid.innerHTML = '<div class="col-span-full text-center py-12 font-bold text-text-secondary"><i class="fa-solid fa-spinner fa-spin mr-2"></i> Memuat snippets...</div>';
         const { data, error } = await db.from('snippets').select('*').order('created_at', { ascending: false });
-        if (error) {
-          grid.innerHTML = `<div class="col-span-full p-6 bg-accent-pink border-2 border-border-color font-bold"><i class="fa-solid fa-triangle-exclamation mr-1"></i> Gagal memuat data: ${error.message}</div>`;
-          return;
-        }
-        snippetsCache = data || [];
+        
+        const dbSnippets = data || [];
+        const existingTitles = new Set(dbSnippets.map(s => (s.title || '').toLowerCase().trim()));
+        const starterToAdd = defaultStarterSnippets.filter(st => !existingTitles.has(st.title.toLowerCase().trim()));
+        
+        snippetsCache = [...dbSnippets, ...starterToAdd];
       }
 
       applySnippetsFilter();
@@ -574,34 +697,66 @@
       if (!grid || !snippetsCache) return;
 
       const searchInput = document.getElementById('search-input');
-      const searchVal = (searchInput?.value || '').toLowerCase().trim();
+      const rawSearch = (searchInput?.value || '').trim();
+      const searchVal = rawSearch.toLowerCase();
 
       const urlParams = new URLSearchParams(window.location.hash.split('?')[1] || '');
       const privacyQuery = urlParams.get('privacy');
       const langQuery = urlParams.get('lang') || '';
 
+      // Update badge dynamically
+      const badgeEl = document.getElementById('filter-badge');
+      if (badgeEl) {
+        if (searchVal) {
+          badgeEl.innerHTML = `<i class="fa-solid fa-magnifying-glass mr-1"></i> HASIL CARI: "${escapeHtml(rawSearch)}"`;
+        } else if (privacyQuery === 'public') {
+          badgeEl.innerHTML = '<i class="fa-solid fa-globe mr-1"></i> PUBLIC SNIPPETS';
+        } else if (privacyQuery === 'private') {
+          badgeEl.innerHTML = '<i class="fa-solid fa-lock mr-1"></i> PRIVATE SNIPPETS';
+        } else if (langQuery) {
+          const matchedCat = categories.find(c => c.code.toLowerCase() === langQuery.toLowerCase());
+          const catName = matchedCat ? matchedCat.name : langQuery.toUpperCase();
+          badgeEl.innerHTML = `<i class="fa-solid fa-code mr-1"></i> ${escapeHtml(catName)} SNIPPETS`;
+        } else {
+          badgeEl.innerHTML = '<i class="fa-solid fa-layer-group mr-1"></i> ALL SNIPPETS';
+        }
+      }
+
+      // Search tokenization for smart multi-keyword matching
+      const searchTokens = searchVal
+        .replace(/&/g, 'and')
+        .split(/[\s,]+/)
+        .filter(t => t.length > 0 && t !== 'dan' && t !== 'and');
+
       const filtered = snippetsCache.filter(s => {
         // Privacy filter
         if (privacyQuery === 'public' && !s.is_public) return false;
         if (privacyQuery === 'private') {
-          if (s.is_public || s.user_id !== currentUser?.id) return false;
+          if (s.is_public || (currentUser && s.user_id !== currentUser.id)) return false;
         }
 
-        // Category / Language filter
-        if (langQuery && !matchCategory(s.language, langQuery)) {
-          return false;
+        // Category filter: strictly active only when NOT typing a search query
+        // If user is searching, allow results across all languages so queries like "variables and data types" are never blocked
+        if (langQuery && !searchVal) {
+          if (!matchCategory(s.language, langQuery)) return false;
         }
 
         // Search filter (Title, Language, Tags, Code Content)
         if (searchVal) {
-          const matchTitle = (s.title || '').toLowerCase().includes(searchVal);
-          const matchLanguage = (s.language || '').toLowerCase().includes(searchVal);
-          const matchContent = (s.code_content || '').toLowerCase().includes(searchVal);
-          const matchTags = Array.isArray(s.tags)
-            ? s.tags.some(t => (t || '').toLowerCase().includes(searchVal))
-            : (typeof s.tags === 'string' && s.tags.toLowerCase().includes(searchVal));
+          const sTitle = (s.title || '').toLowerCase().replace(/&/g, 'and');
+          const sLang = (s.language || '').toLowerCase();
+          const sContent = (s.code_content || '').toLowerCase();
+          const sTags = Array.isArray(s.tags)
+            ? s.tags.map(t => (t || '').toLowerCase()).join(' ')
+            : (typeof s.tags === 'string' ? s.tags.toLowerCase() : '');
 
-          if (!matchTitle && !matchLanguage && !matchContent && !matchTags) {
+          const fullHaystack = `${sTitle} ${sLang} ${sTags} ${sContent}`;
+
+          const exactMatch = fullHaystack.includes(searchVal);
+          const allTokensMatch = searchTokens.length > 0 && searchTokens.every(tok => fullHaystack.includes(tok));
+          const titleKeywordMatch = searchTokens.length > 0 && searchTokens.some(tok => sTitle.includes(tok));
+
+          if (!exactMatch && !allTokensMatch && !titleKeywordMatch) {
             return false;
           }
         }
@@ -617,7 +772,7 @@
               <i class="fa-solid fa-magnifying-glass text-xl sm:text-2xl text-black"></i>
             </div>
             <p class="font-extrabold text-base sm:text-lg mb-1">${isFiltered ? 'Tidak ada snippet yang cocok' : 'Belum ada snippet ditemukan'}</p>
-            <p class="text-xs text-text-secondary font-bold mb-5">${searchVal ? `Kata kunci "${escapeHtml(searchVal)}" tidak ditemukan.` : 'Coba ubah kata kunci pencarian atau kategori bahasa.'}</p>
+            <p class="text-xs text-text-secondary font-bold mb-5">${searchVal ? `Kata kunci "${escapeHtml(rawSearch)}" tidak ditemukan.` : 'Coba ubah kata kunci pencarian atau kategori bahasa.'}</p>
             <div class="flex items-center justify-center gap-3 flex-wrap">
               ${searchVal ? `<button onclick="clearSearch()" class="border-2 border-black px-4 py-2 font-bold text-xs bg-surface shadow-neubrutal-sm hover:translate-x-[-1px] hover:translate-y-[-1px] hover:shadow-neubrutal active:translate-x-0 active:translate-y-0 transition-all"><i class="fa-solid fa-xmark mr-1"></i> Hapus Pencarian</button>` : ''}
               ${langQuery || privacyQuery ? `<a href="#/dashboard" class="inline-block bg-white border-2 border-black px-4 py-2 font-bold text-xs shadow-neubrutal-sm hover:translate-x-[-1px] hover:translate-y-[-1px] hover:shadow-neubrutal active:translate-x-0 active:translate-y-0 transition-all"><i class="fa-solid fa-arrow-left mr-1"></i> Semua Snippet</a>` : ''}
@@ -671,10 +826,14 @@
 
       container.innerHTML = await renderLayout('dashboard', contentHtml);
 
-      const { data: s, error } = await db.from('snippets').select('*').eq('id', id).single();
+      const { data: dbData } = await db.from('snippets').select('*').eq('id', id).single();
+      let s = dbData;
+      if (!s) {
+        s = (snippetsCache || defaultStarterSnippets).find(item => item.id === id);
+      }
       const contentBox = document.getElementById('detail-content');
 
-      if (error || !s) {
+      if (!s) {
         contentBox.innerHTML = `<p class="font-bold text-red-600">Snippet tidak ditemukan atau telah dihapus.</p><a href="#/dashboard" class="inline-block mt-4 underline font-bold"><i class="fa-solid fa-arrow-left mr-1"></i> Kembali ke Dashboard</a>`;
         return;
       }
@@ -683,7 +842,7 @@
         <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-4 pb-4 border-b-2 border-border-color">
           <div>
             <div class="flex items-center space-x-2 mb-2">
-              <span class="bg-secondary border-2 border-border-color px-2.5 py-1 text-xs font-bold uppercase"><i class="fa-solid fa-code mr-1"></i> ${s.language}</span>
+              <span class="bg-secondary border-2 border-border-color px-2.5 py-1 text-xs font-bold uppercase"><i class="fa-solid fa-code mr-1"></i> ${escapeHtml(s.language)}</span>
               <span class="text-xs font-bold px-2 py-0.5 border border-black ${s.is_public ? 'bg-green-100 text-green-800' : 'bg-yellow-100 text-yellow-800'}"><i class="fa-solid ${s.is_public ? 'fa-globe' : 'fa-lock'} mr-1"></i> ${s.is_public ? 'Public' : 'Private'}</span>
             </div>
             <h2 class="text-2xl sm:text-3xl font-extrabold">${escapeHtml(s.title)}</h2>
@@ -710,7 +869,7 @@
 
         <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 mt-6 pt-4 border-t-2 border-border-color text-xs font-bold text-text-secondary">
           <span><i class="fa-regular fa-clock mr-1"></i> Dibuat pada: ${new Date(s.created_at).toLocaleString('id-ID')}</span>
-          ${s.user_id === session.user.id ? `
+          ${s.user_id && session.user && s.user_id === session.user.id ? `
             <button onclick="deleteSnippetAndRedirect('${s.id}')" class="text-red-600 hover:underline"><i class="fa-solid fa-trash-can mr-1"></i> Hapus Snippet Ini</button>
           ` : ''}
         </div>
