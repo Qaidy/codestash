@@ -94,6 +94,7 @@
     
     const db = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
     let currentUser = null;
+    let snippetsCache = null;
 
     // Kategori Bahasa untuk Kategori Cepat
     const categories = [
@@ -444,6 +445,7 @@
     async function renderDashboard(container, path) {
       const { data: { session } } = await db.auth.getSession();
       if (!session) { location.hash = '#/login'; return; }
+      currentUser = session.user;
 
       const contentHtml = `
         <div class="p-4 sm:p-8 max-w-7xl w-full mx-auto space-y-6">
@@ -452,10 +454,11 @@
               <span id="filter-badge" class="bg-primary border-2 border-border-color px-2.5 py-0.5 text-xs font-bold uppercase"><i class="fa-solid fa-layer-group mr-1"></i> ALL SNIPPETS</span>
               <h2 class="text-2xl sm:text-3xl font-extrabold mt-2">DASHBOARD LIBRARY</h2>
             </div>
-            <div class="w-full sm:w-80">
+            <div class="w-full sm:w-80 md:w-96">
               <div class="relative w-full">
-                <span class="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none text-gray-400"><i class="fa-solid fa-magnifying-glass"></i></span>
-                <input type="text" id="search-input" placeholder="Cari judul atau tag..." class="border-2 border-border-color pl-10 pr-4 py-2 bg-surface text-sm font-medium w-full focus:outline-none">
+                <span class="absolute inset-y-0 left-0 flex items-center pl-3.5 pointer-events-none text-black"><i class="fa-solid fa-magnifying-glass"></i></span>
+                <input type="text" id="search-input" placeholder="Cari judul, bahasa, kode, tag..." class="border-2 border-black pl-10 pr-9 py-2 bg-surface text-sm font-bold w-full shadow-neubrutal-sm focus:outline-none focus:bg-yellow-50 focus:shadow-neubrutal transition-all">
+                <button id="search-clear-btn" type="button" class="hidden absolute inset-y-0 right-0 flex items-center pr-3 text-black hover:text-accent-pink font-extrabold text-sm" onclick="clearSearch()"><i class="fa-solid fa-xmark"></i></button>
               </div>
             </div>
           </div>
@@ -489,8 +492,38 @@
 
       await fetchAndRenderSnippets();
 
-      document.getElementById('search-input')?.addEventListener('input', () => fetchAndRenderSnippets());
+      const searchInput = document.getElementById('search-input');
+      const clearBtn = document.getElementById('search-clear-btn');
+
+      const onSearchInput = () => {
+        const val = (searchInput?.value || '').trim();
+        if (clearBtn) {
+          clearBtn.classList.toggle('hidden', !val);
+        }
+        applySnippetsFilter();
+      };
+
+      if (searchInput) {
+        searchInput.addEventListener('input', onSearchInput);
+        searchInput.addEventListener('search', onSearchInput);
+        searchInput.addEventListener('keydown', (e) => {
+          if (e.key === 'Escape') {
+            window.clearSearch();
+          }
+        });
+      }
     }
+
+    window.clearSearch = function() {
+      const searchInput = document.getElementById('search-input');
+      const clearBtn = document.getElementById('search-clear-btn');
+      if (searchInput) {
+        searchInput.value = '';
+        searchInput.focus();
+      }
+      if (clearBtn) clearBtn.classList.add('hidden');
+      applySnippetsFilter();
+    };
 
     function matchCategory(snippetLang, filterCode) {
       if (!filterCode) return true;
@@ -519,48 +552,76 @@
       return s === f || s.includes(f) || f.includes(s);
     }
 
-    async function fetchAndRenderSnippets() {
-      const searchVal = (document.getElementById('search-input')?.value || '').toLowerCase().trim();
-      
+    async function fetchAndRenderSnippets(forceRefresh = false) {
+      const grid = document.getElementById('snippets-grid');
+      if (!grid) return;
+
+      if (!snippetsCache || forceRefresh) {
+        grid.innerHTML = '<div class="col-span-full text-center py-12 font-bold text-text-secondary"><i class="fa-solid fa-spinner fa-spin mr-2"></i> Memuat snippets...</div>';
+        const { data, error } = await db.from('snippets').select('*').order('created_at', { ascending: false });
+        if (error) {
+          grid.innerHTML = `<div class="col-span-full p-6 bg-accent-pink border-2 border-border-color font-bold"><i class="fa-solid fa-triangle-exclamation mr-1"></i> Gagal memuat data: ${error.message}</div>`;
+          return;
+        }
+        snippetsCache = data || [];
+      }
+
+      applySnippetsFilter();
+    }
+
+    function applySnippetsFilter() {
+      const grid = document.getElementById('snippets-grid');
+      if (!grid || !snippetsCache) return;
+
+      const searchInput = document.getElementById('search-input');
+      const searchVal = (searchInput?.value || '').toLowerCase().trim();
+
       const urlParams = new URLSearchParams(window.location.hash.split('?')[1] || '');
       const privacyQuery = urlParams.get('privacy');
       const langQuery = urlParams.get('lang') || '';
 
-      let query = db.from('snippets').select('*').order('created_at', { ascending: false });
-      
-      if (privacyQuery === 'public') {
-        query = query.eq('is_public', true);
-      } else if (privacyQuery === 'private') {
-        query = query.eq('is_public', false).eq('user_id', currentUser?.id);
-      }
+      const filtered = snippetsCache.filter(s => {
+        // Privacy filter
+        if (privacyQuery === 'public' && !s.is_public) return false;
+        if (privacyQuery === 'private') {
+          if (s.is_public || s.user_id !== currentUser?.id) return false;
+        }
 
-      const { data, error } = await query;
-      const grid = document.getElementById('snippets-grid');
-      if (!grid) return;
+        // Category / Language filter
+        if (langQuery && !matchCategory(s.language, langQuery)) {
+          return false;
+        }
 
-      if (error) {
-        grid.innerHTML = `<div class="col-span-full p-6 bg-accent-pink border-2 border-border-color font-bold"><i class="fa-solid fa-triangle-exclamation mr-1"></i> Gagal memuat data: ${error.message}</div>`;
-        return;
-      }
+        // Search filter (Title, Language, Tags, Code Content)
+        if (searchVal) {
+          const matchTitle = (s.title || '').toLowerCase().includes(searchVal);
+          const matchLanguage = (s.language || '').toLowerCase().includes(searchVal);
+          const matchContent = (s.code_content || '').toLowerCase().includes(searchVal);
+          const matchTags = Array.isArray(s.tags)
+            ? s.tags.some(t => (t || '').toLowerCase().includes(searchVal))
+            : (typeof s.tags === 'string' && s.tags.toLowerCase().includes(searchVal));
 
-      const filtered = (data || []).filter(s => {
-        const matchTitle = (s.title || '').toLowerCase().includes(searchVal);
-        const matchTags = Array.isArray(s.tags) && s.tags.some(t => (t || '').toLowerCase().includes(searchVal));
-        const matchContent = (s.code_content || '').toLowerCase().includes(searchVal);
-        const matchSearch = !searchVal || matchTitle || matchTags || matchContent;
-        
-        const matchLang = matchCategory(s.language, langQuery);
-        return matchSearch && matchLang;
+          if (!matchTitle && !matchLanguage && !matchContent && !matchTags) {
+            return false;
+          }
+        }
+
+        return true;
       });
 
       if (filtered.length === 0) {
         const isFiltered = langQuery || searchVal || privacyQuery;
         grid.innerHTML = `
-          <div class="col-span-full bg-surface border-2 border-border-color p-12 text-center shadow-neubrutal">
-            <p class="font-bold text-lg mb-2">${isFiltered ? 'Tidak ada snippet yang cocok dengan kategori / pencarian ini.' : 'Belum ada snippet ditemukan.'}</p>
-            <div class="flex items-center justify-center gap-3 mt-4 flex-wrap">
-              ${isFiltered ? `<a href="#/dashboard" class="inline-block bg-white border-2 border-border-color px-4 py-2 font-bold text-sm shadow-neubrutal-sm hover:translate-x-[-2px] hover:translate-y-[-2px] hover:shadow-neubrutal active:translate-x-0 active:translate-y-0 active:shadow-none transition-all"><i class="fa-solid fa-arrow-left mr-1"></i> Lihat Semua Snippet</a>` : ''}
-              <a href="#/new" class="inline-block bg-primary border-2 border-border-color px-4 py-2 font-bold text-sm shadow-neubrutal-sm hover:translate-x-[-2px] hover:translate-y-[-2px] hover:shadow-neubrutal hover:bg-yellow-300 active:translate-x-0 active:translate-y-0 active:shadow-none transition-all"><i class="fa-solid fa-plus mr-1"></i> Buat Snippet</a>
+          <div class="col-span-full bg-surface border-2 border-border-color p-8 sm:p-12 text-center shadow-neubrutal">
+            <div class="inline-flex p-3 sm:p-4 bg-yellow-100 border-2 border-black shadow-neubrutal-sm mb-4">
+              <i class="fa-solid fa-magnifying-glass text-xl sm:text-2xl text-black"></i>
+            </div>
+            <p class="font-extrabold text-base sm:text-lg mb-1">${isFiltered ? 'Tidak ada snippet yang cocok' : 'Belum ada snippet ditemukan'}</p>
+            <p class="text-xs text-text-secondary font-bold mb-5">${searchVal ? `Kata kunci "${escapeHtml(searchVal)}" tidak ditemukan.` : 'Coba ubah kata kunci pencarian atau kategori bahasa.'}</p>
+            <div class="flex items-center justify-center gap-3 flex-wrap">
+              ${searchVal ? `<button onclick="clearSearch()" class="border-2 border-black px-4 py-2 font-bold text-xs bg-surface shadow-neubrutal-sm hover:translate-x-[-1px] hover:translate-y-[-1px] hover:shadow-neubrutal active:translate-x-0 active:translate-y-0 transition-all"><i class="fa-solid fa-xmark mr-1"></i> Hapus Pencarian</button>` : ''}
+              ${langQuery || privacyQuery ? `<a href="#/dashboard" class="inline-block bg-white border-2 border-black px-4 py-2 font-bold text-xs shadow-neubrutal-sm hover:translate-x-[-1px] hover:translate-y-[-1px] hover:shadow-neubrutal active:translate-x-0 active:translate-y-0 transition-all"><i class="fa-solid fa-arrow-left mr-1"></i> Semua Snippet</a>` : ''}
+              <a href="#/new" class="inline-block bg-primary border-2 border-black px-4 py-2 font-bold text-xs shadow-neubrutal-sm hover:translate-x-[-1px] hover:translate-y-[-1px] hover:shadow-neubrutal hover:bg-yellow-300 active:translate-x-0 active:translate-y-0 transition-all"><i class="fa-solid fa-plus mr-1"></i> Buat Snippet</a>
             </div>
           </div>
         `;
@@ -571,12 +632,12 @@
         <div class="bg-surface border-2 border-border-color p-5 shadow-neubrutal flex flex-col justify-between space-y-4 hover:translate-x-[-2px] hover:translate-y-[-2px] hover:shadow-neubrutal-lg transition-all cursor-pointer" onclick="if(event.target.tagName !== 'BUTTON') location.hash='#/detail/${s.id}'">
           <div>
             <div class="flex items-center justify-between mb-2">
-              <span class="bg-secondary border-2 border-border-color px-2 py-0.5 text-xs font-bold uppercase"><i class="fa-solid fa-code mr-1"></i> ${s.language}</span>
+              <span class="bg-secondary border-2 border-border-color px-2 py-0.5 text-xs font-bold uppercase"><i class="fa-solid fa-code mr-1"></i> ${escapeHtml(s.language)}</span>
               <span class="text-xs font-bold px-2 py-0.5 border border-black ${s.is_public ? 'bg-green-100 text-green-800' : 'bg-yellow-100 text-yellow-800'}"><i class="fa-solid ${s.is_public ? 'fa-globe' : 'fa-lock'} mr-1"></i> ${s.is_public ? 'Public' : 'Private'}</span>
             </div>
             <h3 class="font-extrabold text-lg line-clamp-1 mb-1 hover:underline">${escapeHtml(s.title)}</h3>
             <div class="flex flex-wrap gap-1 mb-3">
-              ${(s.tags || []).map(t => `<span class="bg-bg border border-black px-1.5 py-0.5 text-[10px] font-bold">#${escapeHtml(t)}</span>`).join('')}
+              ${(Array.isArray(s.tags) ? s.tags : []).map(t => `<span class="bg-bg border border-black px-1.5 py-0.5 text-[10px] font-bold">#${escapeHtml(t)}</span>`).join('')}
             </div>
             
             <div class="border-2 border-border-color max-h-36 overflow-hidden relative">
@@ -664,6 +725,7 @@
       if (error) {
         alert("Gagal menghapus: " + error.message);
       } else {
+        snippetsCache = null;
         location.hash = '#/dashboard';
       }
     }
@@ -746,6 +808,7 @@
         if (error) {
           alert("Gagal menyimpan snippet: " + error.message);
         } else {
+          snippetsCache = null;
           location.hash = '#/dashboard';
         }
       });
