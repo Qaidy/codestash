@@ -164,9 +164,3 @@ const SUPABASE_ANON_KEY = "YOUR_ANON_PUBLIC_KEY";
 ## 📄 License
 
 Distributed under the **MIT** License. Feel free to use, modify, and distribute for personal or commercial projects.
-
----
-
-<p align="center">
-  Crafted with ❤️ and <b>Neubrutalism</b> aesthetics for developers worldwide.
-</p>
