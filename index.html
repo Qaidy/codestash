@@ -106,38 +106,12 @@
       const currentHash = window.location.hash || '#/dashboard';
       const [routePath, queryString] = currentHash.split('?');
       const urlParams = new URLSearchParams(queryString || '');
-      const currentLang = urlParams.get('lang') || '';
       const currentPrivacy = urlParams.get('privacy') || '';
 
-      const isDashboardActive = (routePath === '#/dashboard' || routePath === '#/' || routePath === '') && !currentLang && !currentPrivacy;
+      const isDashboardActive = (routePath === '#/dashboard' || routePath === '#/' || routePath === '') && !currentPrivacy;
       const isNewActive = routePath === '#/new';
       const isPublicActive = currentPrivacy === 'public';
       const isPrivateActive = currentPrivacy === 'private';
-
-      const categories = [
-        { code: 'HTML,CSS', name: 'HTML & CSS', icon: '<i class="fa-brands fa-html5 text-orange-600 w-4 text-center"></i>', hoverBg: 'hover:bg-orange-50' },
-        { code: 'JavaScript', name: 'JavaScript', icon: '<i class="fa-brands fa-js text-yellow-500 w-4 text-center"></i>', hoverBg: 'hover:bg-yellow-50' },
-        { code: 'Dart', name: 'Dart / Flutter', icon: '<i class="fa-solid fa-code text-blue-500 w-4 text-center"></i>', hoverBg: 'hover:bg-sky-50' },
-        { code: 'PHP', name: 'PHP / Laravel', icon: '<i class="fa-brands fa-php text-purple-600 w-4 text-center"></i>', hoverBg: 'hover:bg-purple-50' },
-        { code: 'Python', name: 'Python', icon: '<i class="fa-brands fa-python text-emerald-600 w-4 text-center"></i>', hoverBg: 'hover:bg-emerald-50' },
-        { code: 'SQL', name: 'SQL Database', icon: '<i class="fa-solid fa-database text-cyan-600 w-4 text-center"></i>', hoverBg: 'hover:bg-cyan-50' },
-      ];
-
-      const renderCategoryBtns = (isMobile = false) => categories.map(cat => {
-        const isActive = cat.code === 'HTML,CSS'
-          ? (currentLang.toLowerCase() === 'html' || currentLang.toLowerCase() === 'css' || currentLang.toLowerCase() === 'html,css')
-          : currentLang.toLowerCase() === cat.code.toLowerCase();
-        const clickHandler = isMobile ? 'onclick="toggleMobileMenu()"' : '';
-        return `
-          <a href="#/dashboard?lang=${cat.code}" ${clickHandler} class="flex items-center justify-between px-3 py-2 border-2 border-black font-bold text-xs transition-all ${isActive ? 'bg-black text-white shadow-neubrutal translate-x-[-1px] translate-y-[-1px]' : `bg-surface text-black shadow-neubrutal-sm hover:translate-x-[-2px] hover:translate-y-[-2px] hover:shadow-neubrutal ${cat.hoverBg}`} active:translate-x-0 active:translate-y-0 active:shadow-none">
-            <span class="flex items-center space-x-2.5">
-              ${cat.icon}
-              <span>${cat.name}</span>
-            </span>
-            <span class="text-[10px] font-mono ${isActive ? 'text-primary' : 'text-gray-400'}">⚡</span>
-          </a>
-        `;
-      }).join('');
 
       return `
         <!-- Mobile Top Navbar -->
@@ -205,16 +179,6 @@
                     </a>
                   </div>
                 </div>
-
-                <!-- Kategori Cepat -->
-                <div>
-                  <p class="text-[10px] font-black uppercase text-black tracking-wider mb-2 px-1 flex items-center gap-1.5">
-                    <span class="w-2 h-2 bg-primary inline-block border border-black"></span> Kategori Cepat
-                  </p>
-                  <div class="space-y-2">
-                    ${renderCategoryBtns(true)}
-                  </div>
-                </div>
               </div>
             </div>
 
@@ -275,16 +239,6 @@
                     </span>
                     <span class="text-[10px] font-mono px-1.5 py-0.5 border border-current ${isPrivateActive ? 'bg-white/10' : 'bg-rose-100 text-rose-800'}">PRIV</span>
                   </a>
-                </div>
-              </div>
-
-              <!-- Kategori Cepat -->
-              <div>
-                <p class="text-[10px] font-black uppercase text-black tracking-wider mb-2.5 px-1 flex items-center gap-1.5">
-                  <span class="w-2 h-2 bg-primary inline-block border border-black"></span> Kategori Cepat
-                </p>
-                <div class="space-y-2 font-bold text-xs">
-                  ${renderCategoryBtns(false)}
                 </div>
               </div>
             </div>
@@ -442,118 +396,6 @@
     }
 
     // --- 3. DASHBOARD VIEW ---
-    let currentDashboardSnippets = [];
-
-    function matchLanguage(snippetLang, filterLang) {
-      if (!filterLang) return true;
-      if (!snippetLang) return false;
-      
-      const s = snippetLang.toLowerCase().trim();
-      const f = filterLang.toLowerCase().trim();
-
-      if (f === 'html,css' || f === 'html & css') {
-        return s === 'html' || s === 'css';
-      }
-      if (f === 'dart') {
-        return s === 'dart' || s === 'flutter';
-      }
-      if (f === 'php') {
-        return s === 'php' || s === 'laravel';
-      }
-      if (f === 'javascript' || f === 'js') {
-        return s === 'javascript' || s === 'js';
-      }
-      if (f === 'python' || f === 'py') {
-        return s === 'python' || s === 'py';
-      }
-      return s === f || s.includes(f) || f.includes(s);
-    }
-
-    window.applyFilterAndRender = function(overrideLang = null) {
-      const searchInput = document.getElementById('search-input');
-      const searchVal = (searchInput?.value || '').toLowerCase().trim();
-      
-      const selectEl = document.getElementById('lang-filter');
-      const urlParams = new URLSearchParams(window.location.hash.split('?')[1] || '');
-      
-      let langVal = overrideLang !== null ? overrideLang : (selectEl?.value || urlParams.get('lang') || '');
-      
-      // Update Filter Badge di Header
-      const badgeEl = document.getElementById('filter-badge');
-      if (badgeEl) {
-        const privacyQuery = urlParams.get('privacy');
-        if (privacyQuery === 'public') {
-          badgeEl.innerHTML = '<i class="fa-solid fa-globe mr-1"></i> PUBLIC SNIPPETS';
-        } else if (privacyQuery === 'private') {
-          badgeEl.innerHTML = '<i class="fa-solid fa-lock mr-1"></i> PRIVATE SNIPPETS';
-        } else if (langVal) {
-          const displayLang = (langVal === 'HTML,CSS' || langVal.toLowerCase() === 'html,css') ? 'HTML & CSS' : langVal.toUpperCase();
-          badgeEl.innerHTML = `<i class="fa-solid fa-code mr-1"></i> ${displayLang} SNIPPETS`;
-        } else {
-          badgeEl.innerHTML = '<i class="fa-solid fa-layer-group mr-1"></i> ALL SNIPPETS';
-        }
-      }
-
-      const grid = document.getElementById('snippets-grid');
-      if (!grid) return;
-
-      const filtered = currentDashboardSnippets.filter(s => {
-        const matchTitle = (s.title || '').toLowerCase().includes(searchVal);
-        const matchTags = Array.isArray(s.tags) && s.tags.some(t => (t || '').toLowerCase().includes(searchVal));
-        const matchCode = (s.code_content || '').toLowerCase().includes(searchVal);
-        const matchLang = matchLanguage(s.language, langVal);
-        return (matchTitle || matchTags || matchCode) && matchLang;
-      });
-
-      if (filtered.length === 0) {
-        grid.innerHTML = `
-          <div class="col-span-full bg-surface border-2 border-border-color p-12 text-center shadow-neubrutal">
-            <p class="font-bold text-lg mb-2">Belum ada snippet ditemukan untuk filter ini.</p>
-            <p class="text-xs text-text-secondary mb-4">Coba ganti kata kunci pencarian atau pilih bahasa lain.</p>
-            <div class="flex items-center justify-center gap-3">
-              <button onclick="resetAllFilters()" class="bg-primary border-2 border-black px-4 py-2 font-bold text-xs shadow-neubrutal-sm hover:translate-x-[-1px] hover:translate-y-[-1px] hover:shadow-neubrutal transition-all"><i class="fa-solid fa-rotate-left mr-1"></i> Reset Filter</button>
-              <a href="#/new" class="bg-secondary border-2 border-black px-4 py-2 font-bold text-xs shadow-neubrutal-sm hover:translate-x-[-1px] hover:translate-y-[-1px] hover:shadow-neubrutal transition-all"><i class="fa-solid fa-plus mr-1"></i> Buat Snippet Baru</a>
-            </div>
-          </div>
-        `;
-        return;
-      }
-
-      grid.innerHTML = filtered.map(s => `
-        <div class="bg-surface border-2 border-border-color p-5 shadow-neubrutal flex flex-col justify-between space-y-4 hover:translate-x-[-2px] hover:translate-y-[-2px] hover:shadow-neubrutal-lg transition-all cursor-pointer" onclick="if(event.target.tagName !== 'BUTTON') location.hash='#/detail/${s.id}'">
-          <div>
-            <div class="flex items-center justify-between mb-2">
-              <span class="bg-secondary border-2 border-border-color px-2 py-0.5 text-xs font-bold uppercase"><i class="fa-solid fa-code mr-1"></i> ${escapeHtml(s.language || 'Code')}</span>
-              <span class="text-xs font-bold px-2 py-0.5 border border-black ${s.is_public ? 'bg-green-100 text-green-800' : 'bg-yellow-100 text-yellow-800'}"><i class="fa-solid ${s.is_public ? 'fa-globe' : 'fa-lock'} mr-1"></i> ${s.is_public ? 'Public' : 'Private'}</span>
-            </div>
-            <h3 class="font-extrabold text-lg line-clamp-1 mb-1 hover:underline">${escapeHtml(s.title || 'Untitled')}</h3>
-            <div class="flex flex-wrap gap-1 mb-3">
-              ${(s.tags || []).map(t => `<span class="bg-bg border border-black px-1.5 py-0.5 text-[10px] font-bold">#${escapeHtml(t)}</span>`).join('')}
-            </div>
-            
-            <div class="border-2 border-border-color max-h-36 overflow-hidden relative">
-              <pre class="${getPrismLangClass(s.language)}"><code>${escapeHtml(s.code_content || '')}</code></pre>
-            </div>
-          </div>
-          <div class="flex items-center justify-between pt-2 border-t-2 border-border-color">
-            <button onclick="event.stopPropagation(); copySnippetCode(this, \`${encodeURIComponent(s.code_content || '')}\`)" class="border-2 border-border-color px-3 py-1 font-bold text-xs bg-primary shadow-neubrutal-sm hover:bg-yellow-300 active:translate-x-0 active:shadow-none"><i class="fa-regular fa-copy mr-1"></i> Copy Code</button>
-            <span class="text-xs font-bold text-text-secondary hover:underline">Lihat Detail <i class="fa-solid fa-arrow-right ml-0.5"></i></span>
-          </div>
-        </div>
-      `).join('');
-
-      if (window.Prism) Prism.highlightAll();
-    };
-
-    window.resetAllFilters = function() {
-      const selectEl = document.getElementById('lang-filter');
-      if (selectEl) selectEl.value = '';
-      const searchInput = document.getElementById('search-input');
-      if (searchInput) searchInput.value = '';
-      location.hash = '#/dashboard';
-      applyFilterAndRender('');
-    };
-
     async function renderDashboard(container, path) {
       const { data: { session } } = await db.auth.getSession();
       if (!session) { location.hash = '#/login'; return; }
@@ -565,21 +407,11 @@
               <span id="filter-badge" class="bg-primary border-2 border-border-color px-2.5 py-0.5 text-xs font-bold uppercase"><i class="fa-solid fa-layer-group mr-1"></i> ALL SNIPPETS</span>
               <h2 class="text-2xl sm:text-3xl font-extrabold mt-2">DASHBOARD LIBRARY</h2>
             </div>
-            <div class="flex flex-col sm:flex-row items-stretch sm:items-center gap-3">
-              <div class="relative w-full sm:w-64">
+            <div class="w-full sm:w-80">
+              <div class="relative w-full">
                 <span class="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none text-gray-400"><i class="fa-solid fa-magnifying-glass"></i></span>
-                <input type="text" id="search-input" placeholder="Cari judul, tag, atau kode..." class="border-2 border-border-color pl-10 pr-4 py-2 bg-surface text-sm font-medium w-full focus:outline-none">
+                <input type="text" id="search-input" placeholder="Cari judul atau tag..." class="border-2 border-border-color pl-10 pr-4 py-2 bg-surface text-sm font-medium w-full focus:outline-none">
               </div>
-              <select id="lang-filter" class="border-2 border-border-color px-3 py-2 bg-surface text-sm font-bold focus:outline-none cursor-pointer">
-                <option value="">Semua Bahasa</option>
-                <option value="HTML">HTML</option>
-                <option value="CSS">CSS</option>
-                <option value="JavaScript">JavaScript</option>
-                <option value="Dart">Dart</option>
-                <option value="PHP">PHP</option>
-                <option value="Python">Python</option>
-                <option value="SQL">SQL</option>
-              </select>
             </div>
           </div>
 
@@ -592,18 +424,8 @@
       container.innerHTML = await renderLayout('dashboard', contentHtml);
 
       const urlParams = new URLSearchParams(window.location.hash.split('?')[1] || '');
-      const langQuery = urlParams.get('lang') || '';
       const privacyQuery = urlParams.get('privacy');
 
-      const selectEl = document.getElementById('lang-filter');
-      if (selectEl) {
-        if (langQuery === 'HTML,CSS') {
-          selectEl.value = 'HTML';
-        } else {
-          selectEl.value = langQuery;
-        }
-      }
-      
       if (privacyQuery) {
         const badgeEl = document.getElementById('filter-badge');
         if (badgeEl) badgeEl.innerHTML = privacyQuery === 'public' ? '<i class="fa-solid fa-globe mr-1"></i> PUBLIC SNIPPETS' : '<i class="fa-solid fa-lock mr-1"></i> PRIVATE SNIPPETS';
@@ -611,27 +433,12 @@
 
       await fetchAndRenderSnippets();
 
-      // Realtime listener saat user mengetik di search bar
-      document.getElementById('search-input')?.addEventListener('input', () => {
-        applyFilterAndRender();
-      });
-
-      // Realtime listener saat dropdown bahasa diubah
-      document.getElementById('lang-filter')?.addEventListener('change', (e) => {
-        const selectedLang = e.target.value;
-        const currentParams = new URLSearchParams(window.location.hash.split('?')[1] || '');
-        if (selectedLang) {
-          currentParams.set('lang', selectedLang);
-        } else {
-          currentParams.delete('lang');
-        }
-        const newHash = `#/dashboard${currentParams.toString() ? '?' + currentParams.toString() : ''}`;
-        history.replaceState(null, '', newHash);
-        applyFilterAndRender(selectedLang);
-      });
+      document.getElementById('search-input')?.addEventListener('input', () => fetchAndRenderSnippets());
     }
 
     async function fetchAndRenderSnippets() {
+      const searchVal = (document.getElementById('search-input')?.value || '').toLowerCase().trim();
+      
       const urlParams = new URLSearchParams(window.location.hash.split('?')[1] || '');
       const privacyQuery = urlParams.get('privacy');
 
@@ -643,19 +450,55 @@
         query = query.eq('is_public', false).eq('user_id', currentUser?.id);
       }
 
+      const { data, error } = await query;
       const grid = document.getElementById('snippets-grid');
       if (!grid) return;
-
-      const { data, error } = await query;
 
       if (error) {
         grid.innerHTML = `<div class="col-span-full p-6 bg-accent-pink border-2 border-border-color font-bold"><i class="fa-solid fa-triangle-exclamation mr-1"></i> Gagal memuat data: ${error.message}</div>`;
         return;
       }
 
-      currentDashboardSnippets = data || [];
-      const langVal = urlParams.get('lang') || document.getElementById('lang-filter')?.value || '';
-      applyFilterAndRender(langVal);
+      const filtered = (data || []).filter(s => {
+        const matchTitle = (s.title || '').toLowerCase().includes(searchVal);
+        const matchTags = Array.isArray(s.tags) && s.tags.some(t => (t || '').toLowerCase().includes(searchVal));
+        return matchTitle || matchTags;
+      });
+
+      if (filtered.length === 0) {
+        grid.innerHTML = `
+          <div class="col-span-full bg-surface border-2 border-border-color p-12 text-center shadow-neubrutal">
+            <p class="font-bold text-lg mb-2">Belum ada snippet ditemukan.</p>
+            <a href="#/new" class="inline-block bg-primary border-2 border-border-color px-4 py-2 font-bold text-sm shadow-neubrutal-sm"><i class="fa-solid fa-plus mr-1"></i> Buat Snippet Pertama</a>
+          </div>
+        `;
+        return;
+      }
+
+      grid.innerHTML = filtered.map(s => `
+        <div class="bg-surface border-2 border-border-color p-5 shadow-neubrutal flex flex-col justify-between space-y-4 hover:translate-x-[-2px] hover:translate-y-[-2px] hover:shadow-neubrutal-lg transition-all cursor-pointer" onclick="if(event.target.tagName !== 'BUTTON') location.hash='#/detail/${s.id}'">
+          <div>
+            <div class="flex items-center justify-between mb-2">
+              <span class="bg-secondary border-2 border-border-color px-2 py-0.5 text-xs font-bold uppercase"><i class="fa-solid fa-code mr-1"></i> ${s.language}</span>
+              <span class="text-xs font-bold px-2 py-0.5 border border-black ${s.is_public ? 'bg-green-100 text-green-800' : 'bg-yellow-100 text-yellow-800'}"><i class="fa-solid ${s.is_public ? 'fa-globe' : 'fa-lock'} mr-1"></i> ${s.is_public ? 'Public' : 'Private'}</span>
+            </div>
+            <h3 class="font-extrabold text-lg line-clamp-1 mb-1 hover:underline">${escapeHtml(s.title)}</h3>
+            <div class="flex flex-wrap gap-1 mb-3">
+              ${(s.tags || []).map(t => `<span class="bg-bg border border-black px-1.5 py-0.5 text-[10px] font-bold">#${escapeHtml(t)}</span>`).join('')}
+            </div>
+            
+            <div class="border-2 border-border-color max-h-36 overflow-hidden relative">
+              <pre class="${getPrismLangClass(s.language)}"><code>${escapeHtml(s.code_content)}</code></pre>
+            </div>
+          </div>
+          <div class="flex items-center justify-between pt-2 border-t-2 border-border-color">
+            <button onclick="event.stopPropagation(); copySnippetCode(this, \`${encodeURIComponent(s.code_content)}\`)" class="border-2 border-border-color px-3 py-1 font-bold text-xs bg-primary shadow-neubrutal-sm hover:bg-yellow-300"><i class="fa-regular fa-copy mr-1"></i> Copy Code</button>
+            <span class="text-xs font-bold text-text-secondary hover:underline">Lihat Detail <i class="fa-solid fa-arrow-right ml-0.5"></i></span>
+          </div>
+        </div>
+      `).join('');
+
+      if (window.Prism) Prism.highlightAll();
     }
 
     // --- 4. DETAIL SNIPPET VIEW ---
