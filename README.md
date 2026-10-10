@@ -11,112 +11,112 @@
 
 ---
 
-## 📌 Tentang CodeStash
+## 📌 Overview
 
-**CodeStash** adalah aplikasi web *Single Page Application* (SPA) untuk manajemen cuplikan kode (*code snippet manager*) yang mengusung gaya desain **Neubrutalism** — estetika visual modern yang berani dengan garis tepi tebal hitam, bayangan tajam (*hard offset shadows*), palet warna pop kontras tinggi, dan animasi tombol taktil.
+**CodeStash** is a lightweight, responsive Single Page Application (SPA) designed for developers to store, manage, and share code snippets. It embraces a bold, modern **Neubrutalism** aesthetic — featuring prominent black borders, hard offset drop shadows, vibrant high-contrast color accents, and tactile interactive elements.
 
-Dibangun dengan pendekatan arsitektur ringan tanpa build tool rumit, CodeStash memadukan kesederhanaan **Vanilla HTML/JavaScript** dengan keandalan backend **Supabase** (Autentikasi & Database PostgreSQL Realtime).
+Built without complex compilation pipelines or heavy frameworks, CodeStash combines the simplicity of **Vanilla HTML & Modern JavaScript** with the security and real-time capabilities of **Supabase** (PostgreSQL Database & Authentication).
 
 ---
 
-## ✨ Fitur Unggulan
+## ✨ Features
 
-- 🎨 **Estetika Neubrutalism Premium**
-  - Border tebal 2px/3px hitam solid, bayangan tajam (*offset hard shadows*).
-  - Palet warna kontras tinggi (*Electric Yellow, Cyan Accent, Bubblegum Pink*).
-  - Micro-interaction taktil pada tombol dan kartu saat hover dan diklik.
+- 🎨 **Distinct Neubrutalism Design System**
+  - Crisp solid 2px/3px black borders with deep hard offset shadows (`shadow-neubrutal`).
+  - High-energy palette: *Electric Yellow, Neo Cyan, Hot Pink, and Crisp Surface White*.
+  - Tactile micro-interactions on hover and active states across all buttons and snippet cards.
 
-- ⚡ **Kategori Cepat (Quick Language Navigation)**
-  - Akses cepat filter bahasa dari Sidebar Desktop dan Drawer Mobile:
-    - 🌐 **HTML & CSS** (mendukung filter cuplikan HTML dan CSS sekaligus)
+- ⚡ **Quick Language Navigation (Sidebar & Mobile Drawer)**
+  - Direct 1-click filtering by programming language:
+    - 🌐 **HTML & CSS** (seamlessly matches snippets saved in HTML or CSS)
     - 🟨 **JavaScript** (JS & TypeScript)
     - 🎯 **Dart / Flutter**
     - 🐘 **PHP / Laravel**
     - 🐍 **Python**
     - 🗄️ **SQL Database**
 
-- 🔍 **Pencarian Realtime Multi-Kriteria**
-  - Cari cuplikan kode secara instan berdasarkan judul, tag, atau isi kode tanpa memuat ulang halaman.
-  - Filter bahasa dan pencarian teks bekerja sinkron secara simultan.
+- 🔍 **Real-Time Multi-Field Search**
+  - Instant live filtering by snippet title, code content, or tags without full page reloads.
+  - Combines seamlessly with active language category filters.
 
-- 🔐 **Manajemen Privasi (Public & Private)**
-  - **Public**: Cuplikan dapat dilihat oleh semua developer di komunitas.
-  - **Private**: Cuplikan bersifat rahasia dan hanya dapat diakses oleh pemilik akun.
+- 🔐 **Privacy Control (Public vs. Private)**
+  - **Public Snippets**: Accessible to the developer community.
+  - **Private Snippets**: Securely restricted to your personal authenticated account.
 
-- 🌈 **Syntax Highlighting Otomatis**
-  - Ditenagai oleh **Prism.js** dengan tampilan dark editor yang nyaman di mata untuk berbagai bahasa pemrograman.
+- 🌈 **Syntax Highlighting**
+  - Powered by **Prism.js** with an eye-friendly dark theme tailored for high readability across multiple syntax styles.
 
-- 📋 **One-Click Code Copy**
-  - Salin baris kode ke clipboard hanya dengan satu kali klik, dilengkapi status indikator visual (*"Tersalin!"*).
+- 📋 **One-Click Code Copying**
+  - Quick copy-to-clipboard functionality with instant visual status feedback.
 
-- 📱 **Desain Sepenuhnya Responsif**
-  - Optimal di layar smartphone, tablet, maupun monitor desktop dengan navigasi Drawer mobile yang mulus.
+- 📱 **Fully Responsive Layout**
+  - Seamlessly adapted for mobile devices with an interactive sliding drawer, as well as desktop viewports with a sticky sidebar.
 
 ---
 
 ## 🛠️ Tech Stack
 
-| Komponen | Teknologi |
+| Category | Technology |
 | :--- | :--- |
-| **Frontend Core** | HTML5, JavaScript Modern (ES6+ SPA Hash Router) |
-| **Styling & CSS** | Tailwind CSS (CDN) + Custom Neubrutalism Tokens |
+| **Core Architecture** | HTML5, Modern ES6+ JavaScript (Client-side Hash Router SPA) |
+| **Styling & CSS** | Tailwind CSS (CDN) + Custom Neubrutalism Utilities & Tokens |
 | **Typography** | Google Fonts (*Plus Jakarta Sans* & *Space Mono*) |
 | **Icons** | Font Awesome 6 Free CDN |
-| **Syntax Highlighter**| Prism.js (Core + Autoloader & Components) |
-| **Backend & Auth** | Supabase (User Auth & Realtime Database) |
-| **Database** | PostgreSQL (Supabase Database) |
+| **Syntax Highlighter** | Prism.js (Core + Autoloader & Language Components) |
+| **Backend & Auth** | Supabase (User Auth & PostgreSQL Realtime Database) |
+| **Database** | PostgreSQL |
 
 ---
 
-## 📁 Struktur Berkas
+## 📁 Project Structure
 
 ```text
 CodeStash/
-├── .gitignore          # File pengabaian git
-├── README.md           # Dokumentasi resmi proyek
-└── index.html          # Aplikasi utama (Frontend SPA, Router, Styles, & Logic)
+├── .gitignore          # Git ignore specifications
+├── README.md           # Project documentation
+└── index.html          # Entire SPA application (views, layout, router, styling & logic)
 ```
 
 ---
 
-## 🚀 Cara Menjalankan Proyek
+## 🚀 Getting Started
 
-Tidak diperlukan instalasi package node atau build tools tambahan. Proyek ini siap dijalankan secara langsung:
+No build tools, bundlers, or package installations are required. You can run the project locally right away:
 
-### 1. Klon Repositori
+### 1. Clone the Repository
 ```bash
 git clone https://github.com/Qaidy/codestash.git
 cd codestash
 ```
 
-### 2. Jalankan dengan Local Server
+### 2. Run Locally
 
-Anda dapat membuka `index.html` langsung di browser, atau menggunakan server lokal untuk pengalaman terbaik:
+Open `index.html` directly in your favorite web browser, or serve it using any local HTTP server:
 
-- **Menggunakan Python 3:**
+- **Using Python 3:**
   ```bash
   python3 -m http.server 8000
   ```
-- **Menggunakan Node.js (`npx serve`):**
+- **Using Node.js (`npx serve`):**
   ```bash
   npx serve .
   ```
-- **Menggunakan VS Code Live Server:**
-  Klik kanan pada berkas `index.html` dan pilih **"Open with Live Server"**.
+- **Using VS Code Live Server:**
+  Right-click `index.html` and select **"Open with Live Server"**.
 
-Akses aplikasi di browser melalui URL: `http://localhost:8000`
+Visit the application at: `http://localhost:8000`
 
 ---
 
-## 🗄️ Setup Database Supabase (Opsional)
+## 🗄️ Supabase Database Setup (Optional)
 
-Jika Anda ingin menghubungkan dengan instance Supabase milik sendiri:
+If you wish to connect your own Supabase project:
 
-1. Buat proyek baru di [Supabase Dashboard](https://supabase.com).
-2. Eksekusi skrip SQL berikut di menu **SQL Editor**:
+1. Create a new project on [Supabase](https://supabase.com).
+2. Run the following script in the **SQL Editor**:
 
 ```sql
--- Buat tabel snippets
+-- Create snippets table
 CREATE TABLE public.snippets (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     user_id UUID REFERENCES auth.users(id) ON DELETE CASCADE,
@@ -129,31 +129,31 @@ CREATE TABLE public.snippets (
     updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
 );
 
--- Aktifkan Row Level Security (RLS)
+-- Enable Row Level Security
 ALTER TABLE public.snippets ENABLE ROW LEVEL SECURITY;
 
--- Policy: Siapa saja dapat melihat snippet yang berstatus public
+-- Policy: Everyone can view public snippets
 CREATE POLICY "Public snippets are viewable by everyone" 
 ON public.snippets FOR SELECT 
 USING (is_public = true);
 
--- Policy: Pengguna dapat melihat semua snippet miliknya (termasuk private)
+-- Policy: Authenticated users can view their own snippets (including private)
 CREATE POLICY "Users can view own snippets" 
 ON public.snippets FOR SELECT 
 USING (auth.uid() = user_id);
 
--- Policy: Pengguna terautentikasi dapat menambahkan snippet baru
+-- Policy: Authenticated users can insert new snippets
 CREATE POLICY "Authenticated users can insert snippets" 
 ON public.snippets FOR INSERT 
 WITH CHECK (auth.uid() = user_id);
 
--- Policy: Pengguna dapat menghapus snippet miliknya sendiri
+-- Policy: Users can delete only their own snippets
 CREATE POLICY "Users can delete own snippets" 
 ON public.snippets FOR DELETE 
 USING (auth.uid() = user_id);
 ```
 
-3. Ganti konfigurasi `SUPABASE_URL` dan `SUPABASE_ANON_KEY` pada awal tag `<script>` di `index.html`:
+3. Update `SUPABASE_URL` and `SUPABASE_ANON_KEY` inside the `<script>` tag in `index.html`:
 ```javascript
 const SUPABASE_URL = "https://YOUR_PROJECT_ID.supabase.co";
 const SUPABASE_ANON_KEY = "YOUR_ANON_PUBLIC_KEY";
@@ -161,12 +161,12 @@ const SUPABASE_ANON_KEY = "YOUR_ANON_PUBLIC_KEY";
 
 ---
 
-## 📄 Lisensi
+## 📄 License
 
-Didistribusikan di bawah lisensi **MIT**. Silakan gunakan, modifikasi, dan kembangkan sesuai kebutuhan Anda.
+Distributed under the **MIT** License. Feel free to use, modify, and distribute for personal or commercial projects.
 
 ---
 
 <p align="center">
-  Dibuat dengan ❤️ & estetika <b>Neubrutalism</b> untuk developer.
+  Crafted with ❤️ and <b>Neubrutalism</b> aesthetics for developers worldwide.
 </p>
