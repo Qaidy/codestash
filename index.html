@@ -1,0 +1,778 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>CodeStash — Code Snippet Manager</title>
+  
+  <!-- Favicon SVG Kustom Neubrutalist -->
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><rect width='32' height='32' fill='%23FFEB3B' stroke='%23000000' stroke-width='3'/><text x='50%' y='55%' dominant-baseline='middle' text-anchor='middle' font-family='Inter, sans-serif' font-weight='900' font-size='14' fill='%23000000'>CS</text></svg>">
+
+  <!-- Tailwind CSS v3 stable CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          colors: {
+            'bg': '#F3F4F6',
+            'surface': '#FFFFFF',
+            'primary': '#FFEB3B',
+            'secondary': '#4EE2CD',
+            'accent-pink': '#FF8A8A',
+            'border-color': '#000000',
+            'text-primary': '#000000',
+            'text-secondary': '#4B5563',
+            'code-bg': '#1E1E1E',
+          },
+          fontFamily: {
+            sans: ['Inter', 'sans-serif'],
+            mono: ['JetBrains Mono', 'Fira Code', 'Consolas', 'monospace'],
+          },
+          borderRadius: {
+            'none': '0px',
+            'sm': '2px',
+            'md': '4px',
+          },
+          boxShadow: {
+            'neubrutal': '4px 4px 0px #000000',
+            'neubrutal-sm': '2px 2px 0px #000000',
+            'neubrutal-lg': '6px 6px 0px #000000',
+          }
+        }
+      }
+    }
+  </script>
+  <!-- Supabase JS v2 SDK -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+  <!-- FontAwesome 6 CDN -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+  <!-- Prism.js Syntax Highlighting -->
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-tomorrow.min.css" rel="stylesheet" />
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-javascript.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-css.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-markup.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-dart.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-php.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-python.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-sql.min.js"></script>
+
+  <!-- Google Fonts: Inter & JetBrains Mono -->
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+  <style>
+    body {
+      background-color: #F3F4F6;
+      color: #000000;
+      font-family: 'Inter', sans-serif;
+    }
+    pre[class*="language-"] {
+      margin: 0 !important;
+      border-radius: 0 !important;
+      background: #1E1E1E !important;
+      font-family: 'JetBrains Mono', monospace !important;
+      font-size: 0.85rem !important;
+      line-height: 1.6 !important;
+    }
+    code[class*="language-"] {
+      font-family: 'JetBrains Mono', monospace !important;
+    }
+  </style>
+</head>
+<body class="min-h-screen flex flex-col md:flex-row overflow-x-hidden">
+
+  <!-- Main Mount Point -->
+  <div id="app" class="flex flex-col md:flex-row w-full min-h-screen"></div>
+
+  <script>
+    // Inisialisasi Supabase Client (Langsung Pakai)
+    const SUPABASE_URL = "https://ubnqmyiwpppngekuctwe.supabase.co";
+    const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InVibnFteWl3cHBwbmdla3VjdHdlIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTE1NzY2NzgsImV4cCI6MjEwNzE1MjY3OH0.zWhQBF2gyeD7HrWB1L9ATTuLwv4pdkS6ZE6CHSnBB8Y";
+    
+    const db = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+    let currentUser = null;
+
+    // --- SIDEBAR & MOBILE LAYOUT WRAPPER ---
+    async function renderLayout(activeMenu, innerHtmlContent) {
+      const { data: { session } } = await db.auth.getSession();
+      currentUser = session?.user || null;
+      const userEmail = currentUser?.email || 'Developer';
+      const userInitial = userEmail.substring(0, 2).toUpperCase();
+
+      // Deteksi active state berdasarkan URL Hash
+      const currentHash = window.location.hash || '#/dashboard';
+      const [routePath, queryString] = currentHash.split('?');
+      const urlParams = new URLSearchParams(queryString || '');
+      const currentLang = urlParams.get('lang') || '';
+      const currentPrivacy = urlParams.get('privacy') || '';
+
+      const isDashboardActive = (routePath === '#/dashboard' || routePath === '#/' || routePath === '') && !currentLang && !currentPrivacy;
+      const isNewActive = routePath === '#/new';
+      const isPublicActive = currentPrivacy === 'public';
+      const isPrivateActive = currentPrivacy === 'private';
+
+      const categories = [
+        { code: 'HTML', name: 'HTML & CSS', icon: '<i class="fa-brands fa-html5 text-orange-600 w-4 text-center"></i>', hoverBg: 'hover:bg-orange-50' },
+        { code: 'JavaScript', name: 'JavaScript', icon: '<i class="fa-brands fa-js text-yellow-500 w-4 text-center"></i>', hoverBg: 'hover:bg-yellow-50' },
+        { code: 'Dart', name: 'Dart / Flutter', icon: '<i class="fa-solid fa-code text-blue-500 w-4 text-center"></i>', hoverBg: 'hover:bg-sky-50' },
+        { code: 'PHP', name: 'PHP / Laravel', icon: '<i class="fa-brands fa-php text-purple-600 w-4 text-center"></i>', hoverBg: 'hover:bg-purple-50' },
+        { code: 'Python', name: 'Python', icon: '<i class="fa-brands fa-python text-emerald-600 w-4 text-center"></i>', hoverBg: 'hover:bg-emerald-50' },
+        { code: 'SQL', name: 'SQL Database', icon: '<i class="fa-solid fa-database text-cyan-600 w-4 text-center"></i>', hoverBg: 'hover:bg-cyan-50' },
+      ];
+
+      const renderCategoryBtns = (isMobile = false) => categories.map(cat => {
+        const isActive = currentLang.toLowerCase() === cat.code.toLowerCase();
+        const clickHandler = isMobile ? 'onclick="toggleMobileMenu()"' : '';
+        return `
+          <a href="#/dashboard?lang=${cat.code}" ${clickHandler} class="flex items-center justify-between px-3 py-2 border-2 border-black font-bold text-xs transition-all ${isActive ? 'bg-black text-white shadow-neubrutal translate-x-[-1px] translate-y-[-1px]' : `bg-surface text-black shadow-neubrutal-sm hover:translate-x-[-2px] hover:translate-y-[-2px] hover:shadow-neubrutal ${cat.hoverBg}`} active:translate-x-0 active:translate-y-0 active:shadow-none">
+            <span class="flex items-center space-x-2.5">
+              ${cat.icon}
+              <span>${cat.name}</span>
+            </span>
+            <span class="text-[10px] font-mono ${isActive ? 'text-primary' : 'text-gray-400'}">⚡</span>
+          </a>
+        `;
+      }).join('');
+
+      return `
+        <!-- Mobile Top Navbar -->
+        <div class="md:hidden bg-surface border-b-2 border-border-color p-4 flex items-center justify-between sticky top-0 z-50 shadow-neubrutal-sm">
+          <div class="flex items-center space-x-3">
+            <div class="bg-black text-white p-1.5 font-black text-xs border-2 border-black shadow-neubrutal-sm">CS</div>
+            <span class="font-extrabold text-sm tracking-wider">CODESTASH</span>
+          </div>
+          <button onclick="toggleMobileMenu()" class="bg-primary border-2 border-black px-3.5 py-1.5 font-black text-xs shadow-neubrutal-sm hover:translate-x-[-1px] hover:translate-y-[-1px] hover:shadow-neubrutal active:translate-x-0 active:translate-y-0 active:shadow-none transition-all">
+            <i class="fa-solid fa-bars mr-1.5"></i> Menu
+          </button>
+        </div>
+
+        <!-- Mobile Drawer Overlay -->
+        <div id="mobile-drawer" class="fixed inset-0 bg-black/60 z-50 hidden md:hidden flex" onclick="toggleMobileMenu()">
+          <div class="bg-surface w-80 h-full border-r-2 border-black flex flex-col justify-between p-5 overflow-y-auto" onclick="event.stopPropagation()">
+            <div>
+              <div class="flex justify-between items-center mb-6 pb-4 border-b-2 border-black">
+                <div class="flex items-center space-x-2">
+                  <div class="bg-black text-white px-2 py-1 font-black text-xs border-2 border-black shadow-neubrutal-sm">CS</div>
+                  <h3 class="font-black text-sm tracking-wide">NAVIGATION</h3>
+                </div>
+                <button onclick="toggleMobileMenu()" class="font-extrabold border-2 border-black px-2.5 py-1 bg-accent-pink shadow-neubrutal-sm hover:translate-x-[-1px] hover:translate-y-[-1px] hover:shadow-neubrutal active:translate-x-0 active:translate-y-0 active:shadow-none transition-all">
+                  <i class="fa-solid fa-xmark"></i>
+                </button>
+              </div>
+
+              <div class="space-y-6">
+                <!-- Menu Utama -->
+                <div>
+                  <p class="text-[10px] font-black uppercase text-black tracking-wider mb-2 px-1 flex items-center gap-1.5">
+                    <span class="w-2 h-2 bg-black inline-block"></span> Menu Utama
+                  </p>
+                  <nav class="space-y-2 font-bold text-sm">
+                    <a href="#/dashboard" onclick="toggleMobileMenu()" class="flex items-center space-x-3 px-3.5 py-2.5 font-extrabold text-sm border-2 border-black transition-all ${isDashboardActive ? 'bg-black text-white shadow-neubrutal translate-x-[-1px] translate-y-[-1px]' : 'bg-surface text-black shadow-neubrutal-sm hover:translate-x-[-2px] hover:translate-y-[-2px] hover:shadow-neubrutal hover:bg-yellow-100'} active:translate-x-0 active:translate-y-0 active:shadow-none">
+                      <i class="fa-solid fa-chart-pie w-5 text-center ${isDashboardActive ? 'text-primary' : ''}"></i>
+                      <span>Dashboard</span>
+                    </a>
+                    <a href="#/new" onclick="toggleMobileMenu()" class="flex items-center space-x-3 px-3.5 py-2.5 font-extrabold text-sm border-2 border-black transition-all ${isNewActive ? 'bg-black text-white shadow-neubrutal translate-x-[-1px] translate-y-[-1px]' : 'bg-secondary text-black shadow-neubrutal-sm hover:translate-x-[-2px] hover:translate-y-[-2px] hover:shadow-neubrutal hover:bg-[#3bd4be]'} active:translate-x-0 active:translate-y-0 active:shadow-none">
+                      <i class="fa-solid fa-plus w-5 text-center ${isNewActive ? 'text-secondary' : ''}"></i>
+                      <span>New Snippet</span>
+                    </a>
+                  </nav>
+                </div>
+
+                <!-- Filter Privasi -->
+                <div>
+                  <p class="text-[10px] font-black uppercase text-black tracking-wider mb-2 px-1 flex items-center gap-1.5">
+                    <span class="w-2 h-2 bg-secondary inline-block border border-black"></span> Filter Privasi
+                  </p>
+                  <div class="space-y-2 font-bold text-xs">
+                    <a href="#/dashboard?privacy=public" onclick="toggleMobileMenu()" class="flex items-center justify-between px-3 py-2 border-2 border-black font-bold text-xs transition-all ${isPublicActive ? 'bg-black text-white shadow-neubrutal translate-x-[-1px] translate-y-[-1px]' : 'bg-surface text-black shadow-neubrutal-sm hover:translate-x-[-2px] hover:translate-y-[-2px] hover:shadow-neubrutal hover:bg-emerald-50'} active:translate-x-0 active:translate-y-0 active:shadow-none">
+                      <span class="flex items-center space-x-2.5">
+                        <i class="fa-solid fa-globe w-4 text-center ${isPublicActive ? 'text-secondary' : 'text-emerald-600'}"></i>
+                        <span>Public Snippets</span>
+                      </span>
+                      <span class="text-[10px] font-mono px-1.5 py-0.5 border border-current ${isPublicActive ? 'bg-white/10' : 'bg-emerald-100 text-emerald-800'}">PUB</span>
+                    </a>
+                    <a href="#/dashboard?privacy=private" onclick="toggleMobileMenu()" class="flex items-center justify-between px-3 py-2 border-2 border-black font-bold text-xs transition-all ${isPrivateActive ? 'bg-black text-white shadow-neubrutal translate-x-[-1px] translate-y-[-1px]' : 'bg-surface text-black shadow-neubrutal-sm hover:translate-x-[-2px] hover:translate-y-[-2px] hover:shadow-neubrutal hover:bg-rose-50'} active:translate-x-0 active:translate-y-0 active:shadow-none">
+                      <span class="flex items-center space-x-2.5">
+                        <i class="fa-solid fa-lock w-4 text-center ${isPrivateActive ? 'text-accent-pink' : 'text-rose-600'}"></i>
+                        <span>Private Snippets</span>
+                      </span>
+                      <span class="text-[10px] font-mono px-1.5 py-0.5 border border-current ${isPrivateActive ? 'bg-white/10' : 'bg-rose-100 text-rose-800'}">PRIV</span>
+                    </a>
+                  </div>
+                </div>
+
+                <!-- Kategori Cepat -->
+                <div>
+                  <p class="text-[10px] font-black uppercase text-black tracking-wider mb-2 px-1 flex items-center gap-1.5">
+                    <span class="w-2 h-2 bg-primary inline-block border border-black"></span> Kategori Cepat
+                  </p>
+                  <div class="space-y-2">
+                    ${renderCategoryBtns(true)}
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div class="pt-5 mt-6 border-t-2 border-black">
+              <button onclick="handleLogout()" class="w-full bg-accent-pink border-2 border-black py-2.5 font-extrabold text-xs shadow-neubrutal-sm hover:translate-x-[-2px] hover:translate-y-[-2px] hover:shadow-neubrutal hover:bg-red-400 active:translate-x-0 active:translate-y-0 active:shadow-none transition-all">
+                <i class="fa-solid fa-right-from-bracket mr-1.5"></i> Log Out
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Desktop Sidebar -->
+        <aside class="hidden md:flex w-64 lg:w-72 bg-surface border-r-2 border-border-color flex-col justify-between shrink-0 select-none h-screen sticky top-0 overflow-y-auto">
+          <div>
+            <div class="p-5 border-b-2 border-border-color flex items-center space-x-3 bg-primary">
+              <div class="bg-black text-white p-2 font-black text-sm border-2 border-black shadow-neubrutal-sm">CS</div>
+              <div>
+                <h1 class="font-extrabold text-base tracking-wider">CODESTASH</h1>
+                <p class="text-[10px] font-bold uppercase text-text-secondary">Snippet Manager v2.0</p>
+              </div>
+            </div>
+
+            <div class="p-4 space-y-6">
+              <!-- Menu Utama -->
+              <div>
+                <p class="text-[10px] font-black uppercase text-black tracking-wider mb-2.5 px-1 flex items-center gap-1.5">
+                  <span class="w-2 h-2 bg-black inline-block"></span> Menu Utama
+                </p>
+                <nav class="space-y-2 font-bold text-sm">
+                  <a href="#/dashboard" class="flex items-center space-x-3 px-3.5 py-2.5 font-extrabold text-sm border-2 border-black transition-all ${isDashboardActive ? 'bg-black text-white shadow-neubrutal translate-x-[-1px] translate-y-[-1px]' : 'bg-surface text-black shadow-neubrutal-sm hover:translate-x-[-2px] hover:translate-y-[-2px] hover:shadow-neubrutal hover:bg-yellow-100'} active:translate-x-0 active:translate-y-0 active:shadow-none">
+                    <i class="fa-solid fa-chart-pie w-5 text-center ${isDashboardActive ? 'text-primary' : ''}"></i>
+                    <span>Dashboard</span>
+                  </a>
+                  <a href="#/new" class="flex items-center space-x-3 px-3.5 py-2.5 font-extrabold text-sm border-2 border-black transition-all ${isNewActive ? 'bg-black text-white shadow-neubrutal translate-x-[-1px] translate-y-[-1px]' : 'bg-secondary text-black shadow-neubrutal-sm hover:translate-x-[-2px] hover:translate-y-[-2px] hover:shadow-neubrutal hover:bg-[#3bd4be]'} active:translate-x-0 active:translate-y-0 active:shadow-none">
+                    <i class="fa-solid fa-plus w-5 text-center ${isNewActive ? 'text-secondary' : ''}"></i>
+                    <span>New Snippet</span>
+                  </a>
+                </nav>
+              </div>
+
+              <!-- Filter Privasi -->
+              <div>
+                <p class="text-[10px] font-black uppercase text-black tracking-wider mb-2.5 px-1 flex items-center gap-1.5">
+                  <span class="w-2 h-2 bg-secondary inline-block border border-black"></span> Filter Privasi
+                </p>
+                <div class="space-y-2 font-bold text-xs">
+                  <a href="#/dashboard?privacy=public" class="flex items-center justify-between px-3 py-2 border-2 border-black font-bold text-xs transition-all ${isPublicActive ? 'bg-black text-white shadow-neubrutal translate-x-[-1px] translate-y-[-1px]' : 'bg-surface text-black shadow-neubrutal-sm hover:translate-x-[-2px] hover:translate-y-[-2px] hover:shadow-neubrutal hover:bg-emerald-50'} active:translate-x-0 active:translate-y-0 active:shadow-none">
+                    <span class="flex items-center space-x-2.5">
+                      <i class="fa-solid fa-globe w-4 text-center ${isPublicActive ? 'text-secondary' : 'text-emerald-600'}"></i>
+                      <span>Public Snippets</span>
+                    </span>
+                    <span class="text-[10px] font-mono px-1.5 py-0.5 border border-current ${isPublicActive ? 'bg-white/10' : 'bg-emerald-100 text-emerald-800'}">PUB</span>
+                  </a>
+                  <a href="#/dashboard?privacy=private" class="flex items-center justify-between px-3 py-2 border-2 border-black font-bold text-xs transition-all ${isPrivateActive ? 'bg-black text-white shadow-neubrutal translate-x-[-1px] translate-y-[-1px]' : 'bg-surface text-black shadow-neubrutal-sm hover:translate-x-[-2px] hover:translate-y-[-2px] hover:shadow-neubrutal hover:bg-rose-50'} active:translate-x-0 active:translate-y-0 active:shadow-none">
+                    <span class="flex items-center space-x-2.5">
+                      <i class="fa-solid fa-lock w-4 text-center ${isPrivateActive ? 'text-accent-pink' : 'text-rose-600'}"></i>
+                      <span>Private Snippets</span>
+                    </span>
+                    <span class="text-[10px] font-mono px-1.5 py-0.5 border border-current ${isPrivateActive ? 'bg-white/10' : 'bg-rose-100 text-rose-800'}">PRIV</span>
+                  </a>
+                </div>
+              </div>
+
+              <!-- Kategori Cepat -->
+              <div>
+                <p class="text-[10px] font-black uppercase text-black tracking-wider mb-2.5 px-1 flex items-center gap-1.5">
+                  <span class="w-2 h-2 bg-primary inline-block border border-black"></span> Kategori Cepat
+                </p>
+                <div class="space-y-2 font-bold text-xs">
+                  ${renderCategoryBtns(false)}
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="p-4 border-t-2 border-border-color bg-bg shrink-0">
+            <div class="flex items-center space-x-2.5 mb-3 overflow-hidden bg-surface border-2 border-black p-2 shadow-neubrutal-sm">
+              <div class="w-8 h-8 bg-secondary border-2 border-black flex items-center justify-center font-black text-xs shrink-0">${userInitial}</div>
+              <div class="truncate">
+                <p class="text-xs font-extrabold truncate">${userEmail}</p>
+                <p class="text-[10px] text-text-secondary font-bold">Online Session</p>
+              </div>
+            </div>
+            <button onclick="handleLogout()" class="w-full bg-accent-pink border-2 border-border-color py-2.5 font-extrabold text-xs shadow-neubrutal-sm hover:translate-x-[-2px] hover:translate-y-[-2px] hover:shadow-neubrutal hover:bg-red-400 active:translate-x-0 active:translate-y-0 active:shadow-none transition-all">
+              <i class="fa-solid fa-right-from-bracket mr-1.5"></i> Log Out
+            </button>
+          </div>
+        </aside>
+
+        <!-- Main Content Wrapper -->
+        <main class="flex-1 flex flex-col min-h-screen bg-bg overflow-y-auto">
+          ${innerHtmlContent}
+        </main>
+      `;
+    }
+
+    window.toggleMobileMenu = function() {
+      const drawer = document.getElementById('mobile-drawer');
+      if (drawer) drawer.classList.toggle('hidden');
+    }
+
+    function getPrismLangClass(lang) {
+      const l = (lang || '').toLowerCase();
+      if (l === 'js' || l === 'javascript') return 'language-javascript';
+      if (l === 'html' || l === 'css') return `language-${l}`;
+      if (l === 'dart') return 'language-dart';
+      if (l === 'php') return 'language-php';
+      if (l === 'python') return 'language-python';
+      if (l === 'sql') return 'language-sql';
+      return 'language-javascript';
+    }
+
+    // --- 1. LOGIN VIEW ---
+    async function renderLogin(container) {
+      const { data: { session } } = await db.auth.getSession();
+      if (session) { location.hash = '#/dashboard'; return; }
+
+      container.innerHTML = `
+        <div class="flex-1 flex items-center justify-center p-4 sm:p-6 bg-bg w-full min-h-screen">
+          <div class="bg-surface border-2 border-border-color p-6 sm:p-8 w-full max-w-md shadow-neubrutal">
+            <div class="text-center mb-6">
+              <div class="inline-block bg-primary border-2 border-border-color p-3 font-black text-2xl shadow-neubrutal mb-2">CS</div>
+              <h2 class="text-xl sm:text-2xl font-extrabold">SIGN IN TO CODESTASH</h2>
+              <p class="text-xs sm:text-sm text-text-secondary mt-1">Akses kembali koleksi kode snippet Anda.</p>
+            </div>
+            
+            <div id="auth-error" class="hidden mb-4 p-3 bg-accent-pink border-2 border-border-color text-xs sm:text-sm font-bold"></div>
+
+            <form id="login-form" class="space-y-4">
+              <div>
+                <label class="block text-xs font-bold uppercase mb-1">Email Address</label>
+                <input type="email" id="email" required class="w-full border-2 border-border-color p-3 bg-surface text-sm font-medium focus:outline-none" placeholder="developer@example.com">
+              </div>
+              <div>
+                <label class="block text-xs font-bold uppercase mb-1">Password</label>
+                <input type="password" id="password" required class="w-full border-2 border-border-color p-3 bg-surface text-sm font-medium focus:outline-none" placeholder="••••••••">
+              </div>
+              <button type="submit" class="w-full bg-primary border-2 border-border-color py-3 font-bold text-sm shadow-neubrutal hover:shadow-neubrutal-sm transition-all mt-2"><i class="fa-solid fa-right-to-bracket mr-1"></i> Sign In</button>
+            </form>
+            <p class="text-center text-xs sm:text-sm font-medium mt-4">Belum punya akun? <a href="#/register" class="font-bold underline">Register di sini</a></p>
+          </div>
+        </div>
+      `;
+
+      document.getElementById('login-form').addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const email = document.getElementById('email').value;
+        const password = document.getElementById('password').value;
+        const errBox = document.getElementById('auth-error');
+        errBox.classList.add('hidden');
+
+        const { error } = await db.auth.signInWithPassword({ email, password });
+        if (error) {
+          errBox.textContent = error.message;
+          errBox.classList.remove('hidden');
+        } else {
+          location.hash = '#/dashboard';
+        }
+      });
+    }
+
+    // --- 2. REGISTER VIEW ---
+    async function renderRegister(container) {
+      const { data: { session } } = await db.auth.getSession();
+      if (session) { location.hash = '#/dashboard'; return; }
+
+      container.innerHTML = `
+        <div class="flex-1 flex items-center justify-center p-4 sm:p-6 bg-bg w-full min-h-screen">
+          <div class="bg-surface border-2 border-border-color p-6 sm:p-8 w-full max-w-md shadow-neubrutal">
+            <div class="text-center mb-6">
+              <div class="inline-block bg-secondary border-2 border-border-color p-3 font-black text-2xl shadow-neubrutal mb-2">CS</div>
+              <h2 class="text-xl sm:text-2xl font-extrabold">CREATE AN ACCOUNT</h2>
+              <p class="text-xs sm:text-sm text-text-secondary mt-1">Mulai simpan potongan kodenu dengan aman.</p>
+            </div>
+            
+            <div id="auth-error" class="hidden mb-4 p-3 bg-accent-pink border-2 border-border-color text-xs sm:text-sm font-bold"></div>
+
+            <form id="register-form" class="space-y-4">
+              <div>
+                <label class="block text-xs font-bold uppercase mb-1">Nama Lengkap</label>
+                <input type="text" id="fullname" required class="w-full border-2 border-border-color p-3 bg-surface text-sm font-medium focus:outline-none" placeholder="Qaidy Rasyid">
+              </div>
+              <div>
+                <label class="block text-xs font-bold uppercase mb-1">Email Address</label>
+                <input type="email" id="email" required class="w-full border-2 border-border-color p-3 bg-surface text-sm font-medium focus:outline-none" placeholder="developer@example.com">
+              </div>
+              <div>
+                <label class="block text-xs font-bold uppercase mb-1">Password</label>
+                <input type="password" id="password" required class="w-full border-2 border-border-color p-3 bg-surface text-sm font-medium focus:outline-none" placeholder="••••••••">
+              </div>
+              <button type="submit" class="w-full bg-secondary border-2 border-border-color py-3 font-bold text-sm shadow-neubrutal hover:shadow-neubrutal-sm transition-all mt-2"><i class="fa-solid fa-user-plus mr-1"></i> Create Account</button>
+            </form>
+            <p class="text-center text-xs sm:text-sm font-medium mt-4">Sudah punya akun? <a href="#/login" class="font-bold underline">Sign In</a></p>
+          </div>
+        </div>
+      `;
+
+      document.getElementById('register-form').addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const fullname = document.getElementById('fullname').value;
+        const email = document.getElementById('email').value;
+        const password = document.getElementById('password').value;
+        const errBox = document.getElementById('auth-error');
+        errBox.classList.add('hidden');
+
+        const { error } = await db.auth.signUp({
+          email,
+          password,
+          options: { data: { full_name: fullname } }
+        });
+
+        if (error) {
+          errBox.textContent = error.message;
+          errBox.classList.remove('hidden');
+        } else {
+          alert("Registrasi berhasil! Anda otomatis masuk.");
+          location.hash = '#/dashboard';
+        }
+      });
+    }
+
+    window.handleLogout = async function() {
+      await db.auth.signOut();
+      location.hash = '#/login';
+    }
+
+    // --- 3. DASHBOARD VIEW ---
+    async function renderDashboard(container, path) {
+      const { data: { session } } = await db.auth.getSession();
+      if (!session) { location.hash = '#/login'; return; }
+
+      const contentHtml = `
+        <div class="p-4 sm:p-8 max-w-7xl w-full mx-auto space-y-6">
+          <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 bg-surface border-2 border-border-color p-5 sm:p-6 shadow-neubrutal">
+            <div>
+              <span id="filter-badge" class="bg-primary border-2 border-border-color px-2.5 py-0.5 text-xs font-bold uppercase"><i class="fa-solid fa-layer-group mr-1"></i> ALL SNIPPETS</span>
+              <h2 class="text-2xl sm:text-3xl font-extrabold mt-2">DASHBOARD LIBRARY</h2>
+            </div>
+            <div class="flex flex-col sm:flex-row items-stretch sm:items-center gap-3">
+              <div class="relative w-full sm:w-64">
+                <span class="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none text-gray-400"><i class="fa-solid fa-magnifying-glass"></i></span>
+                <input type="text" id="search-input" placeholder="Cari judul atau tag..." class="border-2 border-border-color pl-10 pr-4 py-2 bg-surface text-sm font-medium w-full focus:outline-none">
+              </div>
+              <select id="lang-filter" class="border-2 border-border-color px-3 py-2 bg-surface text-sm font-bold focus:outline-none">
+                <option value="">Semua Bahasa</option>
+                <option value="HTML">HTML</option>
+                <option value="CSS">CSS</option>
+                <option value="JavaScript">JavaScript</option>
+                <option value="Dart">Dart</option>
+                <option value="PHP">PHP</option>
+                <option value="Python">Python</option>
+                <option value="SQL">SQL</option>
+              </select>
+            </div>
+          </div>
+
+          <div id="snippets-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 pb-12">
+            <div class="col-span-full text-center py-12 font-bold text-text-secondary"><i class="fa-solid fa-spinner fa-spin mr-2"></i> Memuat snippets...</div>
+          </div>
+        </div>
+      `;
+
+      container.innerHTML = await renderLayout('dashboard', contentHtml);
+
+      const urlParams = new URLSearchParams(window.location.hash.split('?')[1]);
+      const langQuery = urlParams.get('lang');
+      const privacyQuery = urlParams.get('privacy');
+
+      if (langQuery) {
+        const selectEl = document.getElementById('lang-filter');
+        if (selectEl) selectEl.value = langQuery;
+      }
+      
+      if (privacyQuery) {
+        const badgeEl = document.getElementById('filter-badge');
+        if (badgeEl) badgeEl.innerHTML = privacyQuery === 'public' ? '<i class="fa-solid fa-globe mr-1"></i> PUBLIC SNIPPETS' : '<i class="fa-solid fa-lock mr-1"></i> PRIVATE SNIPPETS';
+      }
+
+      await fetchAndRenderSnippets();
+
+      document.getElementById('search-input').addEventListener('input', () => fetchAndRenderSnippets());
+      document.getElementById('lang-filter').addEventListener('change', (e) => {
+        const currentParams = new URLSearchParams(window.location.hash.split('?')[1] || '');
+        if (e.target.value) {
+          currentParams.set('lang', e.target.value);
+        } else {
+          currentParams.delete('lang');
+        }
+        const newQuery = currentParams.toString();
+        location.hash = `#/dashboard${newQuery ? '?' + newQuery : ''}`;
+      });
+    }
+
+    async function fetchAndRenderSnippets() {
+      const searchVal = document.getElementById('search-input')?.value.toLowerCase() || '';
+      
+      const urlParams = new URLSearchParams(window.location.hash.split('?')[1] || '');
+      const langVal = urlParams.get('lang') || document.getElementById('lang-filter')?.value || '';
+      const privacyQuery = urlParams.get('privacy');
+
+      let query = db.from('snippets').select('*').order('created_at', { ascending: false });
+      
+      if (privacyQuery === 'public') {
+        query = query.eq('is_public', true);
+      } else if (privacyQuery === 'private') {
+        query = query.eq('is_public', false).eq('user_id', currentUser?.id);
+      }
+
+      const { data, error } = await query;
+      const grid = document.getElementById('snippets-grid');
+      if (!grid) return;
+
+      if (error) {
+        grid.innerHTML = `<div class="col-span-full p-6 bg-accent-pink border-2 border-border-color font-bold"><i class="fa-solid fa-triangle-exclamation mr-1"></i> Gagal memuat data: ${error.message}</div>`;
+        return;
+      }
+
+      const filtered = data.filter(s => {
+        const matchTitle = s.title.toLowerCase().includes(searchVal);
+        const matchTags = s.tags && s.tags.some(t => t.toLowerCase().includes(searchVal));
+        const matchLang = !langVal || (s.language && s.language.toLowerCase() === langVal.toLowerCase());
+        return (matchTitle || matchTags) && matchLang;
+      });
+
+      if (filtered.length === 0) {
+        grid.innerHTML = `
+          <div class="col-span-full bg-surface border-2 border-border-color p-12 text-center shadow-neubrutal">
+            <p class="font-bold text-lg mb-2">Belum ada snippet ditemukan.</p>
+            <a href="#/new" class="inline-block bg-primary border-2 border-border-color px-4 py-2 font-bold text-sm shadow-neubrutal-sm"><i class="fa-solid fa-plus mr-1"></i> Buat Snippet Pertama</a>
+          </div>
+        `;
+        return;
+      }
+
+      grid.innerHTML = filtered.map(s => `
+        <div class="bg-surface border-2 border-border-color p-5 shadow-neubrutal flex flex-col justify-between space-y-4 hover:translate-x-[-2px] hover:translate-y-[-2px] hover:shadow-neubrutal-lg transition-all cursor-pointer" onclick="if(event.target.tagName !== 'BUTTON') location.hash='#/detail/${s.id}'">
+          <div>
+            <div class="flex items-center justify-between mb-2">
+              <span class="bg-secondary border-2 border-border-color px-2 py-0.5 text-xs font-bold uppercase"><i class="fa-solid fa-code mr-1"></i> ${s.language}</span>
+              <span class="text-xs font-bold px-2 py-0.5 border border-black ${s.is_public ? 'bg-green-100 text-green-800' : 'bg-yellow-100 text-yellow-800'}"><i class="fa-solid ${s.is_public ? 'fa-globe' : 'fa-lock'} mr-1"></i> ${s.is_public ? 'Public' : 'Private'}</span>
+            </div>
+            <h3 class="font-extrabold text-lg line-clamp-1 mb-1 hover:underline">${escapeHtml(s.title)}</h3>
+            <div class="flex flex-wrap gap-1 mb-3">
+              ${(s.tags || []).map(t => `<span class="bg-bg border border-black px-1.5 py-0.5 text-[10px] font-bold">#${escapeHtml(t)}</span>`).join('')}
+            </div>
+            
+            <div class="border-2 border-border-color max-h-36 overflow-hidden relative">
+              <pre class="${getPrismLangClass(s.language)}"><code>${escapeHtml(s.code_content)}</code></pre>
+            </div>
+          </div>
+          <div class="flex items-center justify-between pt-2 border-t-2 border-border-color">
+            <button onclick="event.stopPropagation(); copySnippetCode(this, \`${encodeURIComponent(s.code_content)}\`)" class="border-2 border-border-color px-3 py-1 font-bold text-xs bg-primary shadow-neubrutal-sm hover:bg-yellow-300"><i class="fa-regular fa-copy mr-1"></i> Copy Code</button>
+            <span class="text-xs font-bold text-text-secondary hover:underline">Lihat Detail <i class="fa-solid fa-arrow-right ml-0.5"></i></span>
+          </div>
+        </div>
+      `).join('');
+
+      if (window.Prism) Prism.highlightAll();
+    }
+
+    // --- 4. DETAIL SNIPPET VIEW ---
+    async function renderDetailSnippet(container, path) {
+      const { data: { session } } = await db.auth.getSession();
+      if (!session) { location.hash = '#/login'; return; }
+
+      const id = path.split('/')[2].split('?')[0];
+
+      const contentHtml = `
+        <div class="p-4 sm:p-8 max-w-4xl w-full mx-auto">
+          <div id="detail-content" class="bg-surface border-2 border-border-color p-6 sm:p-8 shadow-neubrutal">
+            <p class="font-bold"><i class="fa-solid fa-spinner fa-spin mr-2"></i> Memuat detail snippet...</p>
+          </div>
+        </div>
+      `;
+
+      container.innerHTML = await renderLayout('dashboard', contentHtml);
+
+      const { data: s, error } = await db.from('snippets').select('*').eq('id', id).single();
+      const contentBox = document.getElementById('detail-content');
+
+      if (error || !s) {
+        contentBox.innerHTML = `<p class="font-bold text-red-600">Snippet tidak ditemukan atau telah dihapus.</p><a href="#/dashboard" class="inline-block mt-4 underline font-bold"><i class="fa-solid fa-arrow-left mr-1"></i> Kembali ke Dashboard</a>`;
+        return;
+      }
+
+      contentBox.innerHTML = `
+        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-4 pb-4 border-b-2 border-border-color">
+          <div>
+            <div class="flex items-center space-x-2 mb-2">
+              <span class="bg-secondary border-2 border-border-color px-2.5 py-1 text-xs font-bold uppercase"><i class="fa-solid fa-code mr-1"></i> ${s.language}</span>
+              <span class="text-xs font-bold px-2 py-0.5 border border-black ${s.is_public ? 'bg-green-100 text-green-800' : 'bg-yellow-100 text-yellow-800'}"><i class="fa-solid ${s.is_public ? 'fa-globe' : 'fa-lock'} mr-1"></i> ${s.is_public ? 'Public' : 'Private'}</span>
+            </div>
+            <h2 class="text-2xl sm:text-3xl font-extrabold">${escapeHtml(s.title)}</h2>
+          </div>
+          <a href="#/dashboard" class="border-2 border-border-color px-4 py-2 font-bold text-sm bg-bg shadow-neubrutal-sm text-center"><i class="fa-solid fa-arrow-left mr-1"></i> Kembali</a>
+        </div>
+
+        <div class="flex flex-wrap gap-1 mb-6">
+          ${(s.tags || []).map(t => `<span class="bg-bg border border-black px-2 py-0.5 text-xs font-bold">#${escapeHtml(t)}</span>`).join('')}
+        </div>
+
+        <div class="border-2 border-border-color">
+          <div class="flex items-center justify-between bg-[#111111] text-white px-4 py-2 border-b-2 border-border-color text-xs font-mono font-bold">
+            <div class="flex items-center space-x-2">
+              <span class="w-3 h-3 rounded-full bg-red-500 inline-block"></span>
+              <span class="w-3 h-3 rounded-full bg-yellow-500 inline-block"></span>
+              <span class="w-3 h-3 rounded-full bg-green-500 inline-block"></span>
+              <span class="ml-2 text-gray-400">${s.language.toLowerCase()} editor</span>
+            </div>
+            <button onclick="copySnippetCode(this, \`${encodeURIComponent(s.code_content)}\`)" class="bg-primary text-black px-3 py-1 border border-black font-sans font-bold hover:bg-yellow-300"><i class="fa-regular fa-copy mr-1"></i> Copy Code</button>
+          </div>
+          <pre class="${getPrismLangClass(s.language)}"><code>${escapeHtml(s.code_content)}</code></pre>
+        </div>
+
+        <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 mt-6 pt-4 border-t-2 border-border-color text-xs font-bold text-text-secondary">
+          <span><i class="fa-regular fa-clock mr-1"></i> Dibuat pada: ${new Date(s.created_at).toLocaleString('id-ID')}</span>
+          ${s.user_id === session.user.id ? `
+            <button onclick="deleteSnippetAndRedirect('${s.id}')" class="text-red-600 hover:underline"><i class="fa-solid fa-trash-can mr-1"></i> Hapus Snippet Ini</button>
+          ` : ''}
+        </div>
+      `;
+
+      if (window.Prism) Prism.highlightAll();
+    }
+
+    window.deleteSnippetAndRedirect = async function(id) {
+      if (!confirm("Yakin ingin menghapus snippet ini?")) return;
+      const { error } = await db.from('snippets').delete().eq('id', id);
+      if (error) {
+        alert("Gagal menghapus: " + error.message);
+      } else {
+        location.hash = '#/dashboard';
+      }
+    }
+
+    // --- 5. NEW SNIPPET VIEW ---
+    async function renderNewSnippet(container) {
+      const { data: { session } } = await db.auth.getSession();
+      if (!session) { location.hash = '#/login'; return; }
+
+      const contentHtml = `
+        <div class="p-4 sm:p-8 max-w-3xl w-full mx-auto">
+          <div class="bg-surface border-2 border-border-color p-6 sm:p-8 shadow-neubrutal">
+            <h2 class="text-xl sm:text-2xl font-extrabold mb-6"><i class="fa-solid fa-square-plus mr-2"></i> TAMBAH KODE SNIPPET BARU</h2>
+
+            <form id="snippet-form" class="space-y-5">
+              <div>
+                <label class="block text-xs font-bold uppercase mb-1">Judul Snippet</label>
+                <input type="text" id="title" required placeholder="Contoh: Pluck Deep Array Function" class="w-full border-2 border-border-color p-3 bg-surface text-sm font-medium focus:outline-none">
+              </div>
+
+              <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                  <label class="block text-xs font-bold uppercase mb-1">Bahasa / Framework</label>
+                  <select id="language" class="w-full border-2 border-border-color p-3 bg-surface text-sm font-bold focus:outline-none">
+                    <option value="JavaScript" selected>JavaScript</option>
+                    <option value="HTML">HTML</option>
+                    <option value="CSS">CSS</option>
+                    <option value="Dart">Dart</option>
+                    <option value="PHP">PHP</option>
+                    <option value="Python">Python</option>
+                    <option value="SQL">SQL</option>
+                  </select>
+                </div>
+                <div>
+                  <label class="block text-xs font-bold uppercase mb-1">Tags (Pisahkan koma)</label>
+                  <input type="text" id="tags" placeholder="js, array, helper" class="w-full border-2 border-border-color p-3 bg-surface text-sm font-medium focus:outline-none">
+                </div>
+              </div>
+
+              <div>
+                <label class="block text-xs font-bold uppercase mb-1">Isi Kode</label>
+                <textarea id="code_content" rows="10" required placeholder="// Tulis kodenya di sini..." class="w-full border-2 border-border-color p-3 bg-code-bg text-white font-mono text-xs sm:text-sm focus:outline-none"></textarea>
+              </div>
+
+              <div class="flex items-center space-x-3">
+                <input type="checkbox" id="is_public" checked class="w-5 h-5 border-2 border-border-color accent-primary">
+                <label for="is_public" class="font-bold text-xs sm:text-sm">Publikasikan Snippet ini (Dapat dilihat user lain)</label>
+              </div>
+
+              <div class="flex flex-col-reverse sm:flex-row items-center justify-end gap-3 pt-4 border-t-2 border-border-color">
+                <a href="#/dashboard" class="w-full sm:w-auto text-center border-2 border-border-color px-5 py-2 font-bold text-sm bg-surface shadow-neubrutal-sm">Batal</a>
+                <button type="submit" class="w-full sm:w-auto bg-primary border-2 border-border-color px-6 py-2 font-bold text-sm shadow-neubrutal hover:shadow-neubrutal-sm"><i class="fa-solid fa-floppy-disk mr-1"></i> Simpan Snippet</button>
+              </div>
+            </form>
+          </div>
+        </div>
+      `;
+
+      container.innerHTML = await renderLayout('new', contentHtml);
+
+      document.getElementById('snippet-form').addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const title = document.getElementById('title').value;
+        const language = document.getElementById('language').value;
+        const code_content = document.getElementById('code_content').value;
+        const tagsRaw = document.getElementById('tags').value;
+        const is_public = document.getElementById('is_public').checked;
+
+        const tags = tagsRaw ? tagsRaw.split(',').map(t => t.trim()).filter(Boolean) : [];
+
+        const { error } = await db.from('snippets').insert([{
+          user_id: session.user.id,
+          title,
+          language,
+          code_content,
+          tags,
+          is_public
+        }]);
+
+        if (error) {
+          alert("Gagal menyimpan snippet: " + error.message);
+        } else {
+          location.hash = '#/dashboard';
+        }
+      });
+    }
+
+    window.copySnippetCode = function(btn, encodedCode) {
+      const code = decodeURIComponent(encodedCode);
+      navigator.clipboard.writeText(code).then(() => {
+        const originalText = btn.innerHTML;
+        btn.innerHTML = '<i class="fa-solid fa-check mr-1"></i> Copied!';
+        btn.classList.add('bg-secondary');
+        setTimeout(() => {
+          btn.innerHTML = originalText;
+          btn.classList.remove('bg-secondary');
+        }, 1500);
+      });
+    }
+
+    function escapeHtml(str) {
+      return str.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#039;");
+    }
+
+    // --- HASH ROUTER ---
+    const routes = {
+      "/": renderDashboard,
+      "/dashboard": renderDashboard,
+      "/login": renderLogin,
+      "/register": renderRegister,
+      "/new": renderNewSnippet,
+      "/detail": renderDetailSnippet
+    };
+
+    async function router() {
+      const hash = location.hash.slice(1) || "/dashboard";
+      const pathOnly = hash.split("?")[0];
+      const segments = pathOnly.split("/");
+      const baseRoute = "/" + segments[1];
+      
+      const viewFunc = routes[baseRoute] || routes[pathOnly] || renderDashboard;
+      
+      const appContainer = document.getElementById('app');
+      appContainer.innerHTML = '';
+      await viewFunc(appContainer, hash);
+    }
+
+    window.addEventListener('hashchange', router);
+    window.addEventListener('DOMContentLoaded', router);
+  </script>
+</body>
+</html>
