@@ -4,8 +4,9 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>CodeStash — Code Snippet Manager</title>
+  <meta name="description" content="CodeStash: Your personal code snippet manager. Save, organize, and share your code snippets. Welcome to the World Wide Web!">
 
-  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><rect width='32' height='32' fill='%23FFD93D' stroke='%23000000' stroke-width='4'/><text x='50%' y='55%' dominant-baseline='middle' text-anchor='middle' font-family='sans-serif' font-weight='900' font-size='14' fill='%23000000'>CS</text></svg>">
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><polygon points='3,2 24,2 29,7 29,30 3,30' fill='%23000080' stroke='%23000000' stroke-width='1'/><polyline points='4,29 4,3 23,3' stroke='%238080FF' stroke-width='1' fill='none'/><line x1='24' y1='3' x2='28' y2='7' stroke='%23000040' stroke-width='1'/><polyline points='28,7 28,29 4,29' stroke='%23000040' stroke-width='1' fill='none'/><rect x='9' y='2' width='14' height='10' fill='%23C0C0C0' stroke='%23000000' stroke-width='1'/><line x1='9.5' y1='2.5' x2='22.5' y2='2.5' stroke='%23FFFFFF' stroke-width='1'/><line x1='9.5' y1='2.5' x2='9.5' y2='11.5' stroke='%23FFFFFF' stroke-width='1'/><line x1='22.5' y1='2.5' x2='22.5' y2='11.5' stroke='%23808080' stroke-width='1'/><line x1='9.5' y1='11.5' x2='22.5' y2='11.5' stroke='%23808080' stroke-width='1'/><rect x='12' y='4' width='3' height='6' fill='%23000080'/><rect x='6' y='14' width='20' height='14' fill='%23FFFFFF' stroke='%23000000' stroke-width='1'/><rect x='6' y='14' width='20' height='3.5' fill='%23FF0000'/><text x='16' y='25.5' font-family='Arial Black,Impact,sans-serif' font-weight='900' font-size='10' fill='%23000080' text-anchor='middle'>CS</text><rect x='4.5' y='26.5' width='1.5' height='2' fill='%23000000'/><rect x='26' y='26.5' width='1.5' height='2' fill='%23000000'/></svg>">
 
   <script src="https://cdn.tailwindcss.com"></script>
   <script>
@@ -13,14 +14,29 @@
       theme: {
         extend: {
           colors: {
-            'neo-bg': '#FFFDF5',
-            'neo-accent': '#FF6B6B',
-            'neo-secondary': '#FFD93D',
-            'neo-muted': '#C4B5FD',
+            'win-bg': '#C0C0C0',
+            'win-white': '#FFFFFF',
+            'win-black': '#000000',
+            'win-gray': '#808080',
+            'win-dark': '#404040',
+            'win-light': '#DFDFDF',
+            'win-navy': '#000080',
+            'win-blue': '#0000FF',
+            'win-red': '#FF0000',
+            'win-yellow': '#FFFF00',
+            'win-green': '#00FF00',
+            'win-green-dk': '#00AA00',
+            'win-purple': '#800080',
+            'win-teal': '#008080',
+            'win-panel': '#FFFFCC',
+            'win-title-end': '#1084D0',
+            'win-row-alt': '#E8E8E8',
           },
           fontFamily: {
-            sans: ['Space Grotesk', 'sans-serif'],
-            mono: ['JetBrains Mono', 'Consolas', 'monospace'],
+            sans: ['"MS Sans Serif"', '"Segoe UI"', 'Tahoma', 'Geneva', 'Verdana', 'sans-serif'],
+            heading: ['"Arial Black"', 'Impact', 'Haettenschweiler', 'sans-serif'],
+            mono: ['"Courier New"', 'Courier', 'monospace'],
+            comic: ['"Comic Sans MS"', 'cursive'],
           },
         }
       }
@@ -44,131 +60,364 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-bash.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-json.min.js"></script>
 
-  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;700;900&family=JetBrains+Mono:wght@500;700&display=block" rel="stylesheet">
-
   <style>
     /* ========== DESIGN TOKENS ========== */
     :root {
-      --ink: #000000;
-      --canvas: #FFFDF5;
-      --accent: #FF6B6B;
-      --secondary: #FFD93D;
-      --muted: #C4B5FD;
-      --white: #FFFFFF;
-      --shadow-sm: 4px 4px 0 0 #000;
-      --shadow-md: 8px 8px 0 0 #000;
-      --shadow-lg: 12px 12px 0 0 #000;
+      --bg: #C0C0C0;
+      --fg: #000000;
+      --gray: #808080;
+      --dark: #404040;
+      --light: #DFDFDF;
+      --navy: #000080;
+      --blue: #0000FF;
+      --red: #FF0000;
+      --yellow: #FFFF00;
+      --green: #00FF00;
+      --green-dk: #00AA00;
+      --purple: #800080;
+      --teal: #008080;
+      --panel: #FFFFCC;
+      --title-end: #1084D0;
     }
 
     /* ========== BASE ========== */
     html { scroll-behavior: auto; }
+    * { border-radius: 0 !important; }
     body {
-      font-family: 'Space Grotesk', sans-serif;
+      font-family: "MS Sans Serif", "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
       font-weight: 700;
-      color: var(--ink);
-      background-color: var(--canvas);
-      background-size: 40px 40px;
+      font-size: 14px;
+      color: #000000;
+      background-color: #C0C0C0;
+      /* 90s tiled crosshatch pattern */
       background-image:
-        linear-gradient(to right, rgba(0,0,0,0.08) 1px, transparent 1px),
-        linear-gradient(to bottom, rgba(0,0,0,0.08) 1px, transparent 1px);
+        linear-gradient(45deg, #b8b8b8 25%, transparent 25%),
+        linear-gradient(-45deg, #b8b8b8 25%, transparent 25%),
+        linear-gradient(45deg, transparent 75%, #b8b8b8 75%),
+        linear-gradient(-45deg, transparent 75%, #b8b8b8 75%);
+      background-size: 4px 4px;
+      background-position: 0 0, 0 2px, 2px -2px, -2px 0px;
+      line-height: 1.5;
     }
-    h1, h2, h3 { font-weight: 900; text-transform: uppercase; letter-spacing: -0.03em; line-height: 0.95; }
-    a, button, input, select, textarea { border-radius: 0; }
-    :focus-visible { outline: 3px solid #000; outline-offset: 2px; }
-    ::selection { background: var(--secondary); color: #000; }
+    h1, h2, h3 {
+      font-family: "Arial Black", Impact, Haettenschweiler, sans-serif;
+      font-weight: 900;
+      text-transform: uppercase;
+      letter-spacing: -0.02em;
+      line-height: 1.1;
+    }
+    a { color: #0000FF; text-decoration: underline; }
+    a:visited { color: #800080; }
+    a:hover { color: #FF0000; }
+    ::selection { background: #000080; color: #FFFFFF; }
+    :focus-visible {
+      outline: 2px dotted #000000;
+      outline-offset: 2px;
+    }
 
-    /* ========== TEXTURES ========== */
-    .halftone {
-      background-image: radial-gradient(#000 1.5px, transparent 1.5px);
-      background-size: 16px 16px;
+    /* ========== 3D BEVEL SYSTEM ========== */
+    .bevel-out {
+      border: 2px solid;
+      border-color: #ffffff #808080 #808080 #ffffff;
+      box-shadow: inset -1px -1px 0 #404040, inset 1px 1px 0 #dfdfdf;
     }
-    .overlay-dots {
-      background-image: radial-gradient(#000 2.5px, transparent 3px);
-      background-size: 10px 10px;
+    .bevel-out-deep {
+      border: 2px solid;
+      border-color: #ffffff #808080 #808080 #ffffff;
+      box-shadow:
+        inset -2px -2px 0 #808080,
+        inset 2px 2px 0 #fff,
+        inset -4px -4px 0 #404040,
+        inset 4px 4px 0 #dfdfdf;
     }
-    .text-stroke {
-      -webkit-text-stroke: 2px #000;
-      color: transparent;
+    .bevel-in {
+      border: 2px solid;
+      border-color: #808080 #ffffff #ffffff #808080;
+      box-shadow: inset 1px 1px 0 #404040, inset -1px -1px 0 #dfdfdf;
     }
 
     /* ========== BUTTONS ========== */
-    .nb-btn {
-      display: inline-flex; align-items: center; justify-content: center; gap: .5rem;
-      min-height: 3rem; padding: .5rem 1.25rem;
-      border: 4px solid #000; background: var(--secondary); color: #000;
-      font-weight: 700; font-size: .85rem; text-transform: uppercase; letter-spacing: .05em;
-      box-shadow: var(--shadow-sm); cursor: pointer; text-align: center;
-      transition: transform .1s linear, box-shadow .1s linear, background-color .1s linear;
+    .win-btn {
+      display: inline-flex; align-items: center; justify-content: center; gap: 0.4rem;
+      min-height: 2.5rem; padding: 6px 16px;
+      background: #C0C0C0; color: #000000;
+      font-weight: 700; font-size: 13px; text-transform: uppercase; letter-spacing: 0.05em;
+      text-decoration: none;
+      cursor: pointer;
+      border: 2px solid;
+      border-color: #ffffff #808080 #808080 #ffffff;
+      box-shadow: inset -1px -1px 0 #404040, inset 1px 1px 0 #dfdfdf;
     }
-    .nb-btn:hover { transform: translate(-2px, -2px); box-shadow: 6px 6px 0 0 #000; }
-    .nb-btn:active { transform: translate(2px, 2px); box-shadow: none; }
-    .nb-btn-red { background: var(--accent); }
-    .nb-btn-violet { background: var(--muted); }
-    .nb-btn-white { background: var(--white); }
-    .nb-btn-black { background: #000; color: #fff; }
-    .nb-btn-sm { min-height: 2.25rem; padding: .25rem .75rem; font-size: .7rem; border-width: 3px; box-shadow: 3px 3px 0 0 #000; }
-
-    /* ========== CARDS ========== */
-    .nb-card { background: var(--white); border: 4px solid #000; box-shadow: var(--shadow-md); }
-    .nb-lift { transition: transform .2s linear, box-shadow .2s linear; }
-    .nb-lift:hover { transform: translateY(-6px); box-shadow: 14px 14px 0 0 #000; }
+    .win-btn:hover { background: #d0d0d0; color: #000; }
+    .win-btn:active {
+      border-color: #808080 #ffffff #ffffff #808080;
+      box-shadow: inset 1px 1px 0 #404040, inset -1px -1px 0 #dfdfdf;
+      transform: translate(1px, 1px);
+    }
+    .win-btn-blue {
+      background: #0000FF; color: #FFFFFF;
+      border-color: #5555ff #000080 #000080 #5555ff;
+    }
+    .win-btn-blue:hover { background: #3333FF; color: #fff; }
+    .win-btn-red {
+      background: #FF0000; color: #FFFFFF;
+      border-color: #ff5555 #800000 #800000 #ff5555;
+    }
+    .win-btn-red:hover { background: #FF3333; color: #fff; }
+    .win-btn-green {
+      background: #00AA00; color: #FFFFFF;
+      border-color: #00ff00 #006600 #006600 #00ff00;
+    }
+    .win-btn-green:hover { background: #00CC00; color: #fff; }
+    .win-btn-navy {
+      background: #000080; color: #FFFFFF;
+      border-color: #3333AA #000040 #000040 #3333AA;
+    }
+    .win-btn-navy:hover { background: #0000A0; color: #fff; }
+    .win-btn-sm {
+      min-height: 1.75rem; padding: 2px 10px; font-size: 11px;
+    }
 
     /* ========== INPUTS ========== */
-    .nb-input {
-      width: 100%; border: 4px solid #000; background: var(--white); color: #000;
-      padding: .8rem 1rem; font-weight: 700; font-size: 1rem; min-height: 3.5rem;
-      transition: background-color .1s linear, box-shadow .1s linear;
+    .win-input {
+      width: 100%; background: #FFFFFF; color: #000000;
+      padding: 6px 10px; font-weight: 700; font-size: 14px; min-height: 2.5rem;
+      border: 2px solid;
+      border-color: #808080 #ffffff #ffffff #808080;
+      box-shadow: inset 1px 1px 0 #404040, inset -1px -1px 0 #dfdfdf;
+      font-family: inherit;
     }
-    .nb-input::placeholder { color: rgba(0,0,0,.4); }
-    .nb-input:focus-visible { background: var(--secondary); box-shadow: var(--shadow-sm); outline: none; }
-    .nb-label { display: block; font-size: .72rem; font-weight: 900; text-transform: uppercase; letter-spacing: .2em; margin-bottom: .4rem; }
+    .win-input::placeholder { color: #808080; }
+    .win-input:focus-visible {
+      outline: 2px dotted #000000;
+      outline-offset: 2px;
+    }
 
-    /* ========== BADGES ========== */
-    .nb-badge {
-      display: inline-flex; align-items: center; gap: .3rem;
-      border: 3px solid #000; padding: .15rem .55rem;
-      font-weight: 900; font-size: .68rem; text-transform: uppercase; letter-spacing: .12em;
-      box-shadow: 2px 2px 0 0 #000; background: var(--white);
-      transition: transform .1s linear;
+    /* ========== WINDOWS TITLE BAR ========== */
+    .win-titlebar {
+      background: linear-gradient(to right, #000080, #1084D0);
+      color: #FFFFFF;
+      font-family: "Arial Black", Impact, sans-serif;
+      font-weight: 900;
+      font-size: 13px;
+      padding: 4px 8px;
+      text-transform: uppercase;
+      letter-spacing: 0.03em;
+      display: flex;
+      align-items: center;
+      gap: 6px;
     }
-    .nb-sticker { transform: rotate(-2deg); }
-    .nb-sticker-r { transform: rotate(2deg); }
-    .nb-sticker:hover, .nb-sticker-r:hover { transform: rotate(8deg); }
+
+    /* ========== WIN95 CARD ========== */
+    .win-card {
+      background: #C0C0C0;
+      border: 2px solid;
+      border-color: #ffffff #808080 #808080 #ffffff;
+      box-shadow: inset -1px -1px 0 #404040, inset 1px 1px 0 #dfdfdf;
+    }
+    .win-card-body {
+      background: #FFFFFF;
+      border: 2px solid;
+      border-color: #808080 #ffffff #ffffff #808080;
+      box-shadow: inset 1px 1px 0 #404040, inset -1px -1px 0 #dfdfdf;
+      padding: 12px;
+    }
+
+    /* ========== BADGE ========== */
+    .win-badge {
+      display: inline-flex; align-items: center; gap: 4px;
+      border: 2px solid #000; padding: 2px 8px;
+      font-weight: 900; font-size: 11px; text-transform: uppercase; letter-spacing: 0.08em;
+      background: #C0C0C0;
+      text-decoration: none;
+      color: #000;
+    }
 
     /* ========== NAV ========== */
-    .nb-nav {
-      display: flex; align-items: center; gap: .75rem;
-      padding: .6rem .75rem; border: 4px solid transparent;
-      font-weight: 700; font-size: .8rem; text-transform: uppercase; letter-spacing: .05em;
-      transition: all .1s linear;
+    .win-nav {
+      display: flex; align-items: center; gap: 6px;
+      padding: 4px 8px;
+      font-weight: 700; font-size: 13px;
+      color: #000000; text-decoration: none;
+      border: 2px solid transparent;
+      background: transparent;
     }
-    .nb-nav:hover { border-color: #000; background: var(--accent); box-shadow: var(--shadow-sm); transform: translate(-2px,-2px); }
-    .nb-nav.active { border-color: #000; background: #000; color: #fff; box-shadow: var(--shadow-sm); }
-    .nb-nav.active:hover { background: #000; }
-    .nb-section-title { font-size: .65rem; font-weight: 900; text-transform: uppercase; letter-spacing: .25em; margin: 0 0 .5rem .25rem; }
+    .win-nav:hover {
+      background: #000080;
+      color: #FFFFFF;
+      border-color: #808080 #ffffff #ffffff #808080;
+      text-decoration: none;
+    }
+    .win-nav.active {
+      background: #000080;
+      color: #FFFFFF;
+      border: 2px solid;
+      border-color: #808080 #ffffff #ffffff #808080;
+      box-shadow: inset 1px 1px 0 #000040;
+      text-decoration: none;
+    }
+    .win-nav.active:hover { background: #000080; }
+    .win-section-title {
+      font-size: 11px; font-weight: 900; text-transform: uppercase;
+      letter-spacing: 0.2em; margin: 0 0 4px 4px;
+      color: #808080;
+    }
+
+    /* ========== HR GROOVE ========== */
+    .hr-groove {
+      border: none;
+      height: 4px;
+      background: linear-gradient(to bottom, #808080 0%, #808080 50%, #ffffff 50%, #ffffff 100%);
+      margin: 0;
+    }
 
     /* ========== MARQUEE ========== */
-    .marquee { overflow: hidden; border-bottom: 4px solid #000; background: #000; color: var(--secondary); white-space: nowrap; }
-    .marquee-track { display: inline-block; padding: .5rem 0; animation: marquee 25s linear infinite; font-weight: 900; text-transform: uppercase; letter-spacing: .2em; font-size: .75rem; }
-    @keyframes marquee { from { transform: translateX(0); } to { transform: translateX(-50%); } }
-    @keyframes spin-slow { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
-    .animate-spin-slow { animation: spin-slow 10s linear infinite; }
+    .win-marquee {
+      overflow: hidden;
+      border-bottom: 2px solid #000;
+      background: #000080;
+      color: #FFFF00;
+      white-space: nowrap;
+    }
+    .win-marquee-track {
+      display: inline-block;
+      padding: 6px 0;
+      animation: marquee 20s linear infinite;
+      font-weight: 900;
+      text-transform: uppercase;
+      letter-spacing: 0.15em;
+      font-size: 13px;
+    }
+    @keyframes marquee {
+      from { transform: translateX(0); }
+      to { transform: translateX(-50%); }
+    }
+
+    /* ========== RAINBOW TEXT ========== */
+    .text-rainbow {
+      animation: rainbow 4s linear infinite;
+    }
+    @keyframes rainbow {
+      0%   { color: #ff0000; }
+      17%  { color: #ff8000; }
+      33%  { color: #ffff00; }
+      50%  { color: #00ff00; }
+      67%  { color: #0080ff; }
+      83%  { color: #8000ff; }
+      100% { color: #ff0000; }
+    }
+
+    /* ========== PULSE GLOW (NEW! badge) ========== */
+    .pulse-glow {
+      animation: pulse-glow 1.5s ease-in-out infinite;
+    }
+    @keyframes pulse-glow {
+      0%, 100% {
+        transform: scale(1);
+        box-shadow: 0 0 0 0 rgba(255, 0, 0, 0.7);
+      }
+      50% {
+        transform: scale(1.05);
+        box-shadow: 0 0 10px 2px rgba(255, 0, 0, 0.5);
+      }
+    }
+
+    /* ========== BLINK ========== */
+    .blink {
+      animation: blink 1s step-end infinite;
+    }
+    @keyframes blink {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0; }
+    }
+
+    /* ========== CONSTRUCTION STRIPES ========== */
+    .bg-construction {
+      background: repeating-linear-gradient(
+        45deg,
+        #ffff00,
+        #ffff00 10px,
+        #000000 10px,
+        #000000 20px
+      );
+    }
+
+    /* ========== HIT COUNTER ========== */
+    .hit-counter {
+      background: #000080;
+      border: 2px solid;
+      border-color: #808080 #ffffff #ffffff #808080;
+      box-shadow: inset 1px 1px 0 #000040, inset -1px -1px 0 #3333aa;
+      color: #00FF00;
+      font-family: "Courier New", Courier, monospace;
+      font-weight: 700;
+      padding: 8px 16px;
+      font-size: 14px;
+      letter-spacing: 0.1em;
+    }
 
     /* ========== TOAST ========== */
-    #toast-root { position: fixed; right: 1rem; bottom: 1rem; z-index: 100; display: flex; flex-direction: column; gap: .75rem; max-width: calc(100vw - 2rem); }
-    .toast { border: 4px solid #000; box-shadow: var(--shadow-sm); padding: .75rem 1rem; font-weight: 700; font-size: .85rem; animation: pop .15s linear; }
-    @keyframes pop { from { transform: translate(8px, 8px); } to { transform: translate(0,0); } }
+    #toast-root {
+      position: fixed; right: 12px; bottom: 12px; z-index: 100;
+      display: flex; flex-direction: column; gap: 8px;
+      max-width: calc(100vw - 24px);
+    }
+    .toast {
+      padding: 8px 14px;
+      font-weight: 700; font-size: 13px;
+      background: #C0C0C0;
+      border: 2px solid;
+      border-color: #ffffff #808080 #808080 #ffffff;
+      box-shadow: inset -1px -1px 0 #404040, inset 1px 1px 0 #dfdfdf;
+      animation: toast-pop 0.05s linear;
+    }
+    @keyframes toast-pop {
+      from { transform: translate(4px, 4px); }
+      to { transform: translate(0, 0); }
+    }
 
     /* ========== PRISM OVERRIDE ========== */
     pre[class*="language-"] {
       margin: 0 !important; border-radius: 0 !important; background: #000 !important;
-      font-family: 'JetBrains Mono', monospace !important; font-size: .82rem !important; line-height: 1.6 !important;
+      font-family: "Courier New", Courier, monospace !important;
+      font-size: 13px !important; line-height: 1.5 !important;
     }
-    code[class*="language-"] { font-family: 'JetBrains Mono', monospace !important; }
+    code[class*="language-"] {
+      font-family: "Courier New", Courier, monospace !important;
+    }
 
+    /* ========== TEXT SHADOW 3D ========== */
+    .text-3d {
+      text-shadow: 2px 2px 0 #808080;
+    }
+
+    /* ========== SCROLLBAR (Win95 style) ========== */
+    ::-webkit-scrollbar { width: 16px; height: 16px; }
+    ::-webkit-scrollbar-track {
+      background: #C0C0C0;
+      border: 1px solid #808080;
+    }
+    ::-webkit-scrollbar-thumb {
+      background: #C0C0C0;
+      border: 2px solid;
+      border-color: #ffffff #808080 #808080 #ffffff;
+      box-shadow: inset -1px -1px 0 #404040, inset 1px 1px 0 #dfdfdf;
+    }
+    ::-webkit-scrollbar-button {
+      background: #C0C0C0;
+      border: 2px solid;
+      border-color: #ffffff #808080 #808080 #ffffff;
+      display: block;
+      height: 16px; width: 16px;
+    }
+
+    /* ========== REDUCED MOTION ========== */
     @media (prefers-reduced-motion: reduce) {
-      .animate-spin-slow, .marquee-track { animation: none; }
-      .nb-btn, .nb-lift, .nb-nav, .nb-badge { transition: none; }
+      .text-rainbow { animation: none; color: #FF0000; }
+      .pulse-glow { animation: none; }
+      .blink { animation: none; }
+      .win-marquee-track { animation: none; }
+      .win-btn { transition: none; }
     }
   </style>
 </head>
@@ -217,10 +466,13 @@
 
     // ================= UI HELPERS =================
     function toast(msg, type = 'ok') {
-      const colors = { ok: 'var(--secondary)', err: 'var(--accent)', info: 'var(--muted)' };
+      const colors = { ok: '#00AA00', err: '#FF0000', info: '#000080' };
+      const textColors = { ok: '#FFFFFF', err: '#FFFFFF', info: '#FFFFFF' };
       const el = document.createElement('div');
       el.className = 'toast';
       el.style.background = colors[type] || colors.ok;
+      el.style.color = textColors[type] || '#fff';
+      el.style.borderColor = '#ffffff #808080 #808080 #ffffff';
       el.textContent = msg;
       document.getElementById('toast-root').appendChild(el);
       setTimeout(() => el.remove(), 3200);
@@ -241,8 +493,30 @@
     }
 
     function marquee() {
-      const item = '<span class="mx-6">★ CODESTASH</span><span class="mx-6">SAVE</span><span class="mx-6">★ SNIPPET</span><span class="mx-6">COPY</span><span class="mx-6">★ PASTE</span><span class="mx-6">SHIP IT</span>';
-      return `<div class="marquee" aria-hidden="true"><div class="marquee-track">${item.repeat(6)}</div></div>`;
+      const items = [
+        '<span style="color:#FFFF00">★ CODESTASH</span>',
+        '<span style="color:#00FF00">SAVE YOUR CODE</span>',
+        '<span style="color:#FF0000">★ HOT SNIPPETS</span>',
+        '<span style="color:#00FFFF">COPY & PASTE</span>',
+        '<span style="color:#FF00FF">★ SHIP IT</span>',
+        '<span style="color:#FFFFFF">BEST VIEWED IN NETSCAPE NAVIGATOR</span>',
+        '<span style="color:#FFFF00">★ WELCOME TO THE INFORMATION SUPERHIGHWAY</span>',
+        '<span style="color:#00FF00">POWERED BY WEB 1.0</span>',
+      ];
+      const sep = '<span style="color:#808080;margin:0 16px">|</span>';
+      const track = items.join(sep);
+      return `<div class="win-marquee" aria-hidden="true"><div class="win-marquee-track">${(track + sep).repeat(4)}</div></div>`;
+    }
+
+    function hrGroove() {
+      return '<hr class="hr-groove">';
+    }
+
+    function colorSquares() {
+      const colors = ['#FF0000', '#00FF00', '#0000FF', '#FFFF00', '#FF00FF', '#00FFFF', '#FF8000', '#8000FF'];
+      return colors.map(c =>
+        `<div class="bevel-out" style="width:20px;height:20px;background:${c}"></div>`
+      ).join('');
     }
 
     // ================= LAYOUT =================
@@ -259,85 +533,91 @@
       const act = (cond) => cond ? 'active' : '';
 
       const langLinks = (closeFn) => LANGUAGES.map(l =>
-        `<a href="#/dashboard?lang=${encodeURIComponent(l.v)}" ${closeFn} class="nb-nav ${act(isDash && curLang === l.v)}"><i class="${l.icon} w-5 text-center"></i><span>${escapeHtml(l.label)}</span></a>`
+        `<a href="#/dashboard?lang=${encodeURIComponent(l.v)}" ${closeFn} class="win-nav ${act(isDash && curLang === l.v)}"><i class="${l.icon} w-4 text-center" style="stroke-width:2px"></i><span>${escapeHtml(l.label)}</span></a>`
       ).join('');
 
       const navLinks = (closeFn) => `
         <div>
-          <p class="nb-section-title">Main Menu</p>
-          <nav class="space-y-2">
-            <a href="#/dashboard" ${closeFn} class="nb-nav ${act(isDash && !curPrivacy && !curLang)}"><i class="fa-solid fa-chart-pie w-5 text-center"></i><span>Dashboard</span></a>
-            <a href="#/new" ${closeFn} class="nb-nav ${act(activeMenu === 'new')}"><i class="fa-solid fa-plus w-5 text-center"></i><span>New Snippet</span></a>
+          <p class="win-section-title">&#128187; Main Menu</p>
+          <nav class="space-y-1">
+            <a href="#/dashboard" ${closeFn} class="win-nav ${act(isDash && !curPrivacy && !curLang)}"><i class="fa-solid fa-chart-pie w-4 text-center"></i><span>Dashboard</span></a>
+            <a href="#/new" ${closeFn} class="win-nav ${act(activeMenu === 'new')}"><i class="fa-solid fa-plus w-4 text-center"></i><span>New Snippet</span></a>
           </nav>
         </div>
         ${userRole === 'admin' ? `
           <div>
-            <p class="nb-section-title">Admin Panel</p>
-            <a href="#/admin" ${closeFn} class="nb-nav ${act(activeMenu === 'admin')}"><i class="fa-solid fa-user-shield w-5 text-center"></i><span>Pending Approvals</span></a>
+            <p class="win-section-title">&#9889; Admin Panel</p>
+            <a href="#/admin" ${closeFn} class="win-nav ${act(activeMenu === 'admin')}"><i class="fa-solid fa-user-shield w-4 text-center"></i><span>Pending Approvals</span></a>
           </div>` : ''}
         <div>
-          <p class="nb-section-title">Privacy Filter</p>
-          <nav class="space-y-2">
-            <a href="#/dashboard?privacy=public" ${closeFn} class="nb-nav ${act(isDash && curPrivacy === 'public')}"><i class="fa-solid fa-globe w-5 text-center"></i><span>Public</span></a>
-            <a href="#/dashboard?privacy=private" ${closeFn} class="nb-nav ${act(isDash && curPrivacy === 'private')}"><i class="fa-solid fa-lock w-5 text-center"></i><span>Private</span></a>
+          <p class="win-section-title">&#128274; Privacy Filter</p>
+          <nav class="space-y-1">
+            <a href="#/dashboard?privacy=public" ${closeFn} class="win-nav ${act(isDash && curPrivacy === 'public')}"><i class="fa-solid fa-globe w-4 text-center"></i><span>Public</span></a>
+            <a href="#/dashboard?privacy=private" ${closeFn} class="win-nav ${act(isDash && curPrivacy === 'private')}"><i class="fa-solid fa-lock w-4 text-center"></i><span>Private</span></a>
           </nav>
         </div>
         <div>
-          <p class="nb-section-title">Quick Categories</p>
-          <nav class="space-y-2">${langLinks(closeFn)}</nav>
+          <p class="win-section-title">&#128190; Quick Categories</p>
+          <nav class="space-y-1">${langLinks(closeFn)}</nav>
         </div>`;
 
       const logo = `
-        <div class="flex items-center gap-3">
-          <div class="bg-black text-white px-2.5 py-1.5 font-black text-sm border-4 border-black -rotate-3" style="box-shadow:3px 3px 0 0 #FF6B6B">CS</div>
+        <div class="flex items-center gap-2">
+          <div class="bevel-out-deep" style="background:#000080;color:#FFFF00;padding:4px 8px;font-family:'Arial Black',Impact,sans-serif;font-weight:900;font-size:14px">CS</div>
           <div>
-            <h1 class="font-black text-lg tracking-tighter">CODESTASH</h1>
-            <p class="text-[10px] font-black uppercase tracking-widest">Snippet Manager v2.0</p>
+            <h1 style="font-size:16px;letter-spacing:-0.02em;margin:0;line-height:1.1">CODESTASH</h1>
+            <p style="font-size:10px;font-family:'Courier New',monospace;color:#808080;letter-spacing:0.1em">SNIPPET MANAGER v2.0</p>
           </div>
         </div>`;
 
       return `
         <!-- Mobile Top Bar -->
-        <header class="md:hidden bg-neo-secondary border-b-4 border-black p-3 flex items-center justify-between sticky top-0 z-40">
-          <div class="flex items-center gap-2.5">
-            <div class="bg-black text-white px-2 py-1 font-black text-xs border-4 border-black -rotate-3">CS</div>
-            <span class="font-black text-base tracking-tighter uppercase">CodeStash</span>
+        <header class="md:hidden bevel-out p-2 flex items-center justify-between sticky top-0 z-40" style="background:#C0C0C0">
+          <div class="flex items-center gap-2">
+            <div class="bevel-out" style="background:#000080;color:#FFFF00;padding:2px 6px;font-family:'Arial Black',sans-serif;font-weight:900;font-size:12px">CS</div>
+            <span style="font-family:'Arial Black',sans-serif;font-weight:900;font-size:14px;text-transform:uppercase">CodeStash</span>
           </div>
-          <button onclick="toggleMobileMenu()" aria-label="Open menu" class="nb-btn nb-btn-white nb-btn-sm"><i class="fa-solid fa-bars"></i> Menu</button>
+          <button onclick="toggleMobileMenu()" aria-label="Open menu" class="win-btn win-btn-sm"><i class="fa-solid fa-bars"></i> Menu</button>
         </header>
 
         <!-- Mobile Drawer -->
-        <div id="mobile-drawer" class="fixed inset-0 z-50 hidden md:hidden overlay-dots" onclick="toggleMobileMenu()">
-          <div class="bg-neo-bg w-72 max-w-[85vw] h-full border-r-4 border-black flex flex-col justify-between overflow-y-auto" style="box-shadow:8px 0 0 0 #000" onclick="event.stopPropagation()">
+        <div id="mobile-drawer" class="fixed inset-0 z-50 hidden md:hidden" style="background:rgba(0,0,128,0.5)" onclick="toggleMobileMenu()">
+          <div class="win-card w-72 max-w-[85vw] h-full flex flex-col justify-between overflow-y-auto" onclick="event.stopPropagation()">
             <div>
-              <div class="bg-neo-secondary border-b-4 border-black p-4 flex justify-between items-start">
+              <div class="win-titlebar justify-between" style="padding:6px 8px">
                 ${logo}
-                <button onclick="toggleMobileMenu()" aria-label="Close menu" class="nb-btn nb-btn-red nb-btn-sm" style="min-width:2.25rem"><i class="fa-solid fa-xmark"></i></button>
+                <button onclick="toggleMobileMenu()" aria-label="Close menu" class="win-btn win-btn-red win-btn-sm" style="min-width:24px"><i class="fa-solid fa-xmark"></i></button>
               </div>
-              <div class="p-4 space-y-5">${navLinks('onclick="toggleMobileMenu()"')}</div>
+              <div class="p-3 space-y-4" style="background:#C0C0C0">${navLinks('onclick="toggleMobileMenu()"')}</div>
             </div>
-            <div class="p-4 border-t-4 border-black bg-neo-muted">
-              <p class="text-xs font-black truncate mb-3">${escapeHtml(userEmail)}</p>
-              <button onclick="handleLogout()" class="nb-btn nb-btn-red w-full"><i class="fa-solid fa-right-from-bracket"></i> Log Out</button>
+            <div class="p-3 bevel-in" style="background:#C0C0C0">
+              <p style="font-size:11px;font-weight:900;margin-bottom:8px" class="truncate">${escapeHtml(userEmail)}</p>
+              <button onclick="handleLogout()" class="win-btn win-btn-red w-full"><i class="fa-solid fa-right-from-bracket"></i> Log Out</button>
             </div>
           </div>
         </div>
 
         <!-- Desktop Sidebar -->
-        <aside class="hidden md:flex w-64 lg:w-72 bg-neo-bg border-r-4 border-black flex-col justify-between shrink-0 select-none h-screen sticky top-0 overflow-y-auto">
+        <aside class="hidden md:flex w-60 lg:w-64 flex-col justify-between shrink-0 select-none h-screen sticky top-0 overflow-y-auto win-card">
           <div>
-            <div class="p-5 border-b-4 border-black bg-neo-secondary">${logo}</div>
-            <div class="p-4 space-y-6">${navLinks('')}</div>
+            <div class="win-titlebar" style="padding:8px 10px">${logo}</div>
+            ${hrGroove()}
+            <div class="p-3 space-y-4" style="background:#C0C0C0">${navLinks('')}</div>
           </div>
-          <div class="p-4 border-t-4 border-black bg-neo-muted">
-            <div class="flex items-center gap-3 mb-3 overflow-hidden">
-              <div class="w-10 h-10 bg-neo-secondary border-4 border-black flex items-center justify-center font-black text-sm shrink-0 rotate-3" style="box-shadow:3px 3px 0 0 #000">${escapeHtml(userInitial)}</div>
-              <div class="truncate">
-                <p class="text-xs font-black truncate">${escapeHtml(userEmail)}</p>
-                <p class="text-[10px] font-black uppercase tracking-widest">${userRole === 'admin' ? '⚡ ADMIN' : 'USER SESSION'}</p>
+          <div>
+            ${hrGroove()}
+            <div class="p-3" style="background:#C0C0C0">
+              <div class="bevel-in p-2 mb-2" style="background:#FFFFCC">
+                <div class="flex items-center gap-2 overflow-hidden">
+                  <div class="bevel-out flex items-center justify-center shrink-0" style="width:32px;height:32px;background:#000080;color:#FFFF00;font-family:'Courier New',monospace;font-weight:900;font-size:12px">${escapeHtml(userInitial)}</div>
+                  <div class="truncate">
+                    <p style="font-size:11px;font-weight:900" class="truncate">${escapeHtml(userEmail)}</p>
+                    <p style="font-size:10px;font-family:'Courier New',monospace;color:#808080">${userRole === 'admin' ? '⚡ ADMIN' : 'USER SESSION'}</p>
+                  </div>
+                </div>
               </div>
+              <button onclick="handleLogout()" class="win-btn win-btn-red w-full"><i class="fa-solid fa-right-from-bracket"></i> Log Out</button>
             </div>
-            <button onclick="handleLogout()" class="nb-btn nb-btn-red w-full"><i class="fa-solid fa-right-from-bracket"></i> Log Out</button>
           </div>
         </aside>
 
@@ -357,21 +637,58 @@
     // ================= AUTH SHELL =================
     function authShell({ color, title, subtitle, bodyHtml, footerHtml }) {
       return `
-        <div class="flex-1 flex items-center justify-center p-4 sm:p-6 w-full min-h-screen relative overflow-hidden">
-          <div class="absolute top-10 left-6 w-20 h-20 bg-neo-accent border-4 border-black rounded-full hidden sm:block" style="box-shadow:var(--shadow-sm)"></div>
-          <div class="absolute bottom-10 right-8 w-24 h-24 bg-neo-muted border-4 border-black rotate-12 hidden sm:block" style="box-shadow:var(--shadow-sm)"></div>
-          <i class="fa-solid fa-star text-6xl absolute top-16 right-16 animate-spin-slow hidden md:block" style="color:var(--secondary);-webkit-text-stroke:3px #000"></i>
+        <div class="flex-1 flex items-center justify-center p-4 sm:p-6 w-full min-h-screen relative overflow-hidden" style="background:#C0C0C0">
+          <!-- Decorative color squares -->
+          <div class="absolute top-6 left-6 hidden sm:flex gap-1">
+            ${colorSquares()}
+          </div>
+          <div class="absolute bottom-6 right-6 hidden sm:flex gap-1">
+            ${colorSquares()}
+          </div>
 
-          <div class="nb-card p-6 sm:p-8 w-full max-w-md relative z-10" style="box-shadow:var(--shadow-lg)">
-            <span class="nb-badge nb-sticker-r absolute -top-4 -right-3 bg-neo-accent">v2.0</span>
-            <div class="mb-6">
-              <div class="inline-block border-4 border-black p-3 font-black text-2xl -rotate-3 mb-4" style="background:${color};box-shadow:var(--shadow-sm)">CS</div>
-              <h2 class="text-3xl sm:text-4xl">${title}</h2>
-              <p class="text-sm mt-2 font-medium">${subtitle}</p>
+          <!-- Under construction banner -->
+          <div class="absolute top-0 left-0 right-0 bg-construction" style="height:8px" aria-hidden="true"></div>
+          <div class="absolute bottom-0 left-0 right-0 bg-construction" style="height:8px" aria-hidden="true"></div>
+
+          <div class="win-card w-full max-w-md relative z-10">
+            <!-- Win95 Title Bar -->
+            <div class="win-titlebar justify-between">
+              <span><i class="fa-solid fa-terminal" style="margin-right:4px"></i> ${title.replace(/<[^>]*>/g, '')}</span>
+              <div class="flex gap-1">
+                <div class="bevel-out" style="width:16px;height:14px;background:#C0C0C0;display:flex;align-items:center;justify-content:center;font-size:8px;color:#000;cursor:pointer">_</div>
+                <div class="bevel-out" style="width:16px;height:14px;background:#C0C0C0;display:flex;align-items:center;justify-content:center;font-size:8px;color:#000;cursor:pointer">□</div>
+                <div class="bevel-out" style="width:16px;height:14px;background:#C0C0C0;display:flex;align-items:center;justify-content:center;font-size:8px;color:#000;font-weight:900;cursor:pointer">×</div>
+              </div>
             </div>
-            <div id="auth-error" class="hidden mb-4 p-3 bg-neo-accent border-4 border-black text-sm font-bold" style="box-shadow:var(--shadow-sm)" role="alert"></div>
-            ${bodyHtml}
-            <p class="text-center text-sm font-bold mt-5">${footerHtml}</p>
+            <div class="p-4 sm:p-6" style="background:#C0C0C0">
+              <!-- NEW badge -->
+              <div class="flex items-center gap-2 mb-4">
+                <span class="win-badge pulse-glow" style="background:#FF0000;color:#FFF;border-color:#ff5555 #800000 #800000 #ff5555">
+                  <i class="fa-solid fa-star"></i> NEW!
+                </span>
+                <span class="win-badge" style="background:#FFFF00;color:#000">v2.0</span>
+              </div>
+
+              <div class="mb-4">
+                <div class="bevel-out" style="display:inline-block;background:${color};padding:6px 12px;margin-bottom:8px">
+                  <span style="font-family:'Arial Black',Impact,sans-serif;font-weight:900;font-size:20px;color:#000">CS</span>
+                </div>
+                <h2 class="text-3d" style="font-size:28px;line-height:1.1">${title}</h2>
+                <p style="font-size:13px;margin-top:6px;color:#808080">${subtitle}</p>
+              </div>
+
+              <div id="auth-error" class="hidden mb-4 bevel-in p-3" style="background:#FF0000;color:#FFFFFF;font-size:13px;font-weight:700" role="alert"></div>
+
+              ${bodyHtml}
+
+              ${hrGroove()}
+              <p style="text-align:center;font-size:13px;font-weight:700;margin-top:12px">${footerHtml}</p>
+
+              <!-- Hit counter -->
+              <div class="hit-counter text-center mt-4" style="font-size:11px">
+                &#128187; VISITORS: 0001337 | ONLINE SINCE 1997 &#128187;
+              </div>
+            </div>
           </div>
         </div>`;
     }
@@ -382,18 +699,22 @@
       if (session) { location.hash = '#/dashboard'; return; }
 
       container.innerHTML = authShell({
-        color: 'var(--secondary)',
-        title: 'Sign in <span class="text-stroke">CodeStash</span>',
-        subtitle: 'Get back to your code snippet collection.',
+        color: '#FFFF00',
+        title: 'Sign In <span class="text-rainbow">CodeStash</span>',
+        subtitle: 'Get back to your code snippet collection on the World Wide Web.',
         bodyHtml: `
-          <form id="login-form" class="space-y-4">
-            <div><label class="nb-label" for="email">Email Address</label>
-              <input type="email" id="email" required class="nb-input" placeholder="developer@example.com" autocomplete="email"></div>
-            <div><label class="nb-label" for="password">Password</label>
-              <input type="password" id="password" required class="nb-input" placeholder="••••••••" autocomplete="current-password"></div>
-            <button type="submit" class="nb-btn nb-btn-red w-full h-14 mt-2"><i class="fa-solid fa-right-to-bracket"></i> Sign In</button>
+          <form id="login-form" class="space-y-3">
+            <div>
+              <label style="display:block;font-size:11px;font-weight:900;text-transform:uppercase;letter-spacing:0.15em;margin-bottom:4px" for="email">Email Address</label>
+              <input type="email" id="email" required class="win-input" placeholder="developer@example.com" autocomplete="email">
+            </div>
+            <div>
+              <label style="display:block;font-size:11px;font-weight:900;text-transform:uppercase;letter-spacing:0.15em;margin-bottom:4px" for="password">Password</label>
+              <input type="password" id="password" required class="win-input" placeholder="••••••••" autocomplete="current-password">
+            </div>
+            <button type="submit" class="win-btn win-btn-navy w-full" style="min-height:3rem;margin-top:12px;font-size:14px"><i class="fa-solid fa-right-to-bracket"></i> SIGN IN</button>
           </form>`,
-        footerHtml: `Don't have an account? <a href="#/register" class="underline decoration-4 hover:bg-neo-secondary">Register here</a>`
+        footerHtml: `Don't have an account? <a href="#/register">Register here</a>`
       });
 
       document.getElementById('login-form').addEventListener('submit', async (e) => {
@@ -418,20 +739,26 @@
       if (session) { location.hash = '#/dashboard'; return; }
 
       container.innerHTML = authShell({
-        color: 'var(--muted)',
-        title: 'Create <span class="text-stroke">Account</span>',
-        subtitle: 'Start saving your code snippets safely.',
+        color: '#00FFFF',
+        title: 'Create <span class="text-rainbow">Account</span>',
+        subtitle: 'Start saving your code snippets on the Information Superhighway.',
         bodyHtml: `
-          <form id="register-form" class="space-y-4">
-            <div><label class="nb-label" for="fullname">Full Name</label>
-              <input type="text" id="fullname" required class="nb-input" placeholder="Qaidy Rasyid" autocomplete="name"></div>
-            <div><label class="nb-label" for="email">Email Address</label>
-              <input type="email" id="email" required class="nb-input" placeholder="developer@example.com" autocomplete="email"></div>
-            <div><label class="nb-label" for="password">Password</label>
-              <input type="password" id="password" required class="nb-input" placeholder="••••••••" autocomplete="new-password"></div>
-            <button type="submit" class="nb-btn nb-btn-violet w-full h-14 mt-2"><i class="fa-solid fa-user-plus"></i> Create Account</button>
+          <form id="register-form" class="space-y-3">
+            <div>
+              <label style="display:block;font-size:11px;font-weight:900;text-transform:uppercase;letter-spacing:0.15em;margin-bottom:4px" for="fullname">Full Name</label>
+              <input type="text" id="fullname" required class="win-input" placeholder="Qaidy Rasyid" autocomplete="name">
+            </div>
+            <div>
+              <label style="display:block;font-size:11px;font-weight:900;text-transform:uppercase;letter-spacing:0.15em;margin-bottom:4px" for="email">Email Address</label>
+              <input type="email" id="email" required class="win-input" placeholder="developer@example.com" autocomplete="email">
+            </div>
+            <div>
+              <label style="display:block;font-size:11px;font-weight:900;text-transform:uppercase;letter-spacing:0.15em;margin-bottom:4px" for="password">Password</label>
+              <input type="password" id="password" required class="win-input" placeholder="••••••••" autocomplete="new-password">
+            </div>
+            <button type="submit" class="win-btn win-btn-green w-full" style="min-height:3rem;margin-top:12px;font-size:14px"><i class="fa-solid fa-user-plus"></i> CREATE ACCOUNT</button>
           </form>`,
-        footerHtml: `Already have an account? <a href="#/login" class="underline decoration-4 hover:bg-neo-secondary">Sign In</a>`
+        footerHtml: `Already have an account? <a href="#/login">Sign In</a>`
       });
 
       document.getElementById('register-form').addEventListener('submit', async (e) => {
@@ -467,27 +794,52 @@
       if (!session) { location.hash = '#/login'; return; }
 
       const contentHtml = `
-        <div class="p-4 sm:p-8 max-w-7xl w-full mx-auto space-y-8">
-          <div class="nb-card bg-neo-muted p-5 sm:p-7 flex flex-col lg:flex-row lg:items-end justify-between gap-5 relative" style="box-shadow:var(--shadow-lg)">
-            <i class="fa-solid fa-star absolute -top-5 -left-4 text-4xl animate-spin-slow" style="color:var(--secondary);-webkit-text-stroke:2px #000"></i>
-            <div>
-              <span id="filter-badge" class="nb-badge nb-sticker bg-neo-secondary"><i class="fa-solid fa-layer-group"></i> ALL SNIPPETS</span>
-              <h2 class="text-4xl sm:text-5xl mt-3">Dashboard <span class="text-stroke">Library</span></h2>
-            </div>
-            <div class="flex flex-col sm:flex-row items-stretch gap-3">
-              <div class="relative w-full sm:w-64">
-                <span class="absolute inset-y-0 left-0 flex items-center pl-4 pointer-events-none"><i class="fa-solid fa-magnifying-glass"></i></span>
-                <input type="text" id="search-input" placeholder="Search title or tag..." aria-label="Search snippets" class="nb-input" style="padding-left:2.75rem">
+        <div class="p-3 sm:p-6" style="max-width:1024px;width:100%;margin:0 auto">
+          <!-- Dashboard Header Window -->
+          <div class="win-card mb-4">
+            <div class="win-titlebar justify-between">
+              <span><i class="fa-solid fa-chart-pie" style="margin-right:4px"></i> DASHBOARD - CODE SNIPPET LIBRARY</span>
+              <div class="flex gap-1">
+                <div class="bevel-out" style="width:16px;height:14px;background:#C0C0C0;display:flex;align-items:center;justify-content:center;font-size:8px;color:#000">_</div>
+                <div class="bevel-out" style="width:16px;height:14px;background:#C0C0C0;display:flex;align-items:center;justify-content:center;font-size:8px;color:#000">□</div>
+                <div class="bevel-out" style="width:16px;height:14px;background:#C0C0C0;display:flex;align-items:center;justify-content:center;font-size:8px;color:#000;font-weight:900">×</div>
               </div>
-              <select id="lang-filter" aria-label="Filter by language" class="nb-input sm:w-auto cursor-pointer uppercase">
-                <option value="">All Languages</option>
-                ${langOptions()}
-              </select>
+            </div>
+            <div class="p-4" style="background:#C0C0C0">
+              <div class="flex flex-col lg:flex-row lg:items-end justify-between gap-4">
+                <div>
+                  <div class="flex items-center gap-2 mb-2">
+                    <span id="filter-badge" class="win-badge" style="background:#FFFF00;color:#000"><i class="fa-solid fa-layer-group"></i> ALL SNIPPETS</span>
+                    <span class="win-badge pulse-glow" style="background:#FF0000;color:#FFF;border-color:#ff5555 #800000 #800000 #ff5555"><i class="fa-solid fa-fire"></i> HOT!</span>
+                  </div>
+                  <h2 class="text-3d text-rainbow" style="font-size:32px;line-height:1">DASHBOARD LIBRARY</h2>
+                </div>
+                <div class="flex flex-col sm:flex-row items-stretch gap-2">
+                  <div style="position:relative;width:100%;" class="sm:w-56">
+                    <span style="position:absolute;top:50%;left:10px;transform:translateY(-50%);pointer-events:none;color:#808080"><i class="fa-solid fa-magnifying-glass"></i></span>
+                    <input type="text" id="search-input" placeholder="Search title or tag..." aria-label="Search snippets" class="win-input" style="padding-left:32px">
+                  </div>
+                  <select id="lang-filter" aria-label="Filter by language" class="win-input sm:w-auto cursor-pointer uppercase" style="min-width:140px">
+                    <option value="">All Languages</option>
+                    ${langOptions()}
+                  </select>
+                </div>
+              </div>
             </div>
           </div>
 
-          <div id="snippets-grid" class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-8 pb-12">
-            <div class="col-span-full text-center py-12 font-black uppercase"><i class="fa-solid fa-spinner fa-spin mr-2"></i> Loading snippets...</div>
+          ${hrGroove()}
+
+          <!-- Decorative color bar -->
+          <div class="flex my-3 gap-0">${colorSquares()}</div>
+
+          <div id="snippets-grid" class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4 pb-8">
+            <div class="col-span-full text-center py-8" style="font-weight:900;text-transform:uppercase;font-size:13px"><i class="fa-solid fa-spinner fa-spin" style="margin-right:6px"></i> Loading snippets...</div>
+          </div>
+
+          <!-- Hit Counter Footer -->
+          <div class="hit-counter text-center mb-4">
+            &#128187; SNIPPETS LOADED SUCCESSFULLY | YOU ARE VISITOR #0001337 | BEST VIEWED AT 800x600 &#128187;
           </div>
         </div>`;
 
@@ -538,7 +890,7 @@
       if (!grid) return;
 
       if (error) {
-        grid.innerHTML = `<div class="col-span-full p-6 bg-neo-accent border-4 border-black font-black" style="box-shadow:var(--shadow-md)"><i class="fa-solid fa-triangle-exclamation mr-1"></i> Failed to load data: ${escapeHtml(error.message)}</div>`;
+        grid.innerHTML = `<div class="col-span-full bevel-in p-4" style="background:#FF0000;color:#FFF;font-weight:900"><i class="fa-solid fa-triangle-exclamation" style="margin-right:4px"></i> Failed to load data: ${escapeHtml(error.message)}</div>`;
         return;
       }
 
@@ -553,40 +905,57 @@
 
       if (filtered.length === 0) {
         grid.innerHTML = `
-          <div class="col-span-full nb-card bg-neo-secondary p-10 sm:p-14 text-center relative" style="box-shadow:var(--shadow-lg)">
-            <div class="halftone absolute inset-0 opacity-10 pointer-events-none"></div>
-            <p class="font-black text-3xl sm:text-4xl uppercase mb-5 relative">Nothing here!</p>
-            <p class="font-bold mb-6 relative">No snippets found.</p>
-            <a href="#/new" class="nb-btn nb-btn-red relative"><i class="fa-solid fa-plus"></i> Create Your First Snippet</a>
+          <div class="col-span-full win-card">
+            <div class="win-titlebar"><i class="fa-solid fa-folder-open" style="margin-right:4px"></i> NO RESULTS FOUND</div>
+            <div class="p-6 text-center" style="background:#FFFFCC">
+              <p style="font-family:'Arial Black',Impact,sans-serif;font-size:24px;text-transform:uppercase;margin-bottom:8px">Nothing here!</p>
+              <p style="font-size:13px;margin-bottom:12px">No snippets found matching your criteria.</p>
+              <a href="#/new" class="win-btn win-btn-navy"><i class="fa-solid fa-plus"></i> Create Your First Snippet</a>
+            </div>
           </div>`;
         return;
       }
 
-      const headColors = ['var(--secondary)', 'var(--muted)', 'var(--accent)'];
+      const titleBarColors = [
+        'linear-gradient(to right, #000080, #1084D0)',
+        'linear-gradient(to right, #800000, #CC0000)',
+        'linear-gradient(to right, #006600, #00AA00)',
+      ];
 
       grid.innerHTML = filtered.map((s, i) => `
-        <article class="nb-card nb-lift flex flex-col cursor-pointer" onclick="if(!event.target.closest('button')) location.hash='#/detail/${s.id}'">
-          <div class="flex items-center justify-between gap-2 flex-wrap p-3 border-b-4 border-black" style="background:${headColors[i % 3]}">
-            <span class="nb-badge nb-sticker bg-white"><i class="fa-solid fa-code"></i> ${escapeHtml(s.language)}</span>
-            <div class="flex items-center gap-1.5 flex-wrap">
-              ${s.is_public ? (s.is_approved
-                ? `<span class="nb-badge bg-white"><i class="fa-solid fa-circle-check"></i> Approved</span>`
-                : `<span class="nb-badge bg-neo-accent"><i class="fa-solid fa-clock-rotate-left"></i> Pending</span>`) : ''}
-              <span class="nb-badge ${s.is_public ? 'bg-neo-secondary' : 'bg-white'}">${s.is_public ? 'Public' : 'Private'}</span>
+        <article class="win-card flex flex-col cursor-pointer" onclick="if(!event.target.closest('button')) location.hash='#/detail/${s.id}'" style="transition:none">
+          <!-- Title bar -->
+          <div class="win-titlebar justify-between" style="background:${titleBarColors[i % 3]}">
+            <span style="font-size:12px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${escapeHtml(s.title)}</span>
+            <div class="flex gap-1 shrink-0">
+              <div class="bevel-out" style="width:14px;height:12px;background:#C0C0C0;font-size:7px;display:flex;align-items:center;justify-content:center;color:#000">_</div>
+              <div class="bevel-out" style="width:14px;height:12px;background:#C0C0C0;font-size:7px;display:flex;align-items:center;justify-content:center;color:#000">□</div>
+              <div class="bevel-out" style="width:14px;height:12px;background:#C0C0C0;font-size:7px;display:flex;align-items:center;justify-content:center;color:#000;font-weight:900">×</div>
             </div>
           </div>
-          <div class="p-5 flex-1 space-y-3">
-            <h3 class="text-2xl line-clamp-1 hover:underline" style="letter-spacing:-0.02em">${escapeHtml(s.title)}</h3>
-            <div class="flex flex-wrap gap-1.5">
-              ${(s.tags || []).map(t => `<span class="border-2 border-black bg-neo-bg px-1.5 py-0.5 text-[11px] font-black">#${escapeHtml(t)}</span>`).join('')}
+          <!-- Toolbar -->
+          <div class="flex items-center justify-between gap-2 flex-wrap p-2 border-b-2 border-[#808080]" style="background:#C0C0C0">
+            <span class="win-badge" style="background:#FFFF00;color:#000"><i class="fa-solid fa-code"></i> ${escapeHtml(s.language)}</span>
+            <div class="flex items-center gap-1 flex-wrap">
+              ${s.is_public ? (s.is_approved
+                ? `<span class="win-badge" style="background:#00AA00;color:#FFF"><i class="fa-solid fa-circle-check"></i> OK</span>`
+                : `<span class="win-badge blink" style="background:#FF0000;color:#FFF"><i class="fa-solid fa-clock-rotate-left"></i> PENDING</span>`) : ''}
+              <span class="win-badge" style="background:${s.is_public ? '#0000FF' : '#808080'};color:#FFF">${s.is_public ? '&#127760; Public' : '&#128274; Private'}</span>
             </div>
-            <div class="border-4 border-black max-h-36 overflow-hidden">
+          </div>
+          <!-- Content (sunken) -->
+          <div class="bevel-in flex-1 m-2" style="background:#FFFFFF;padding:10px">
+            <div class="flex flex-wrap gap-1 mb-2">
+              ${(s.tags || []).map(t => `<span style="border:2px solid #000;background:#FFFF00;padding:1px 6px;font-size:10px;font-weight:900;text-transform:uppercase">#${escapeHtml(t)}</span>`).join('')}
+            </div>
+            <div class="bevel-in" style="max-height:120px;overflow:hidden;background:#000">
               <pre class="${getPrismLangClass(s.language)}"><code>${escapeHtml(s.code_content)}</code></pre>
             </div>
           </div>
-          <div class="flex items-center justify-between gap-2 p-4 border-t-4 border-black bg-neo-bg">
-            <button onclick="event.stopPropagation(); copySnippetCode(this, \`${encodeURIComponent(s.code_content)}\`)" class="nb-btn nb-btn-sm"><i class="fa-regular fa-copy"></i> Copy</button>
-            <span class="text-xs font-black uppercase tracking-wider">Details <i class="fa-solid fa-arrow-right ml-1"></i></span>
+          <!-- Footer -->
+          <div class="flex items-center justify-between gap-2 p-2 border-t-2 border-[#ffffff]" style="background:#C0C0C0;border-top-color:#fff">
+            <button onclick="event.stopPropagation(); copySnippetCode(this, \`${encodeURIComponent(s.code_content)}\`)" class="win-btn win-btn-sm"><i class="fa-regular fa-copy"></i> Copy</button>
+            <span style="font-size:11px;font-weight:900;text-transform:uppercase;letter-spacing:0.05em;color:#0000FF;text-decoration:underline">Details &rarr;</span>
           </div>
         </article>
       `).join('');
@@ -607,13 +976,34 @@
       }
 
       const contentHtml = `
-        <div class="p-4 sm:p-8 max-w-7xl w-full mx-auto space-y-8">
-          <div class="nb-card bg-neo-accent p-5 sm:p-7" style="box-shadow:var(--shadow-lg)">
-            <span class="nb-badge nb-sticker bg-white"><i class="fa-solid fa-user-shield"></i> Admin Moderation Panel</span>
-            <h2 class="text-4xl sm:text-5xl mt-3">Pending <span class="text-stroke">Public</span> Snippets</h2>
+        <div class="p-3 sm:p-6" style="max-width:1024px;width:100%;margin:0 auto">
+          <!-- Admin Header Window -->
+          <div class="win-card mb-4">
+            <div class="win-titlebar justify-between">
+              <span><i class="fa-solid fa-user-shield" style="margin-right:4px"></i> ADMIN PANEL - MODERATION QUEUE</span>
+              <div class="flex gap-1">
+                <div class="bevel-out" style="width:16px;height:14px;background:#C0C0C0;display:flex;align-items:center;justify-content:center;font-size:8px;color:#000">_</div>
+                <div class="bevel-out" style="width:16px;height:14px;background:#C0C0C0;display:flex;align-items:center;justify-content:center;font-size:8px;color:#000">□</div>
+                <div class="bevel-out" style="width:16px;height:14px;background:#C0C0C0;display:flex;align-items:center;justify-content:center;font-size:8px;color:#000;font-weight:900">×</div>
+              </div>
+            </div>
+            <div class="p-4" style="background:#C0C0C0">
+              <div class="flex items-center gap-2 mb-2">
+                <span class="win-badge pulse-glow" style="background:#FF0000;color:#FFF;border-color:#ff5555 #800000 #800000 #ff5555"><i class="fa-solid fa-exclamation-triangle"></i> REVIEW</span>
+              </div>
+              <h2 class="text-3d" style="font-size:28px;line-height:1">PENDING PUBLIC SNIPPETS</h2>
+            </div>
           </div>
-          <div id="admin-grid" class="grid grid-cols-1 lg:grid-cols-2 gap-8 pb-12">
-            <div class="col-span-full text-center py-12 font-black uppercase"><i class="fa-solid fa-spinner fa-spin mr-2"></i> Loading approval queue...</div>
+
+          <!-- Construction stripes warning -->
+          <div class="bg-construction p-1 mb-4">
+            <div class="bevel-in p-2" style="background:#FFFF00;text-align:center;font-weight:900;font-size:12px;text-transform:uppercase">
+              &#9888; ADMIN AREA - AUTHORIZED PERSONNEL ONLY &#9888;
+            </div>
+          </div>
+
+          <div id="admin-grid" class="grid grid-cols-1 lg:grid-cols-2 gap-4 pb-8">
+            <div class="col-span-full text-center py-8" style="font-weight:900;text-transform:uppercase;font-size:13px"><i class="fa-solid fa-spinner fa-spin" style="margin-right:6px"></i> Loading approval queue...</div>
           </div>
         </div>`;
 
@@ -628,38 +1018,44 @@
       const { data, error } = await db.from('snippets').select('*').eq('is_public', true).eq('is_approved', false).order('created_at', { ascending: false });
 
       if (error) {
-        grid.innerHTML = `<div class="col-span-full p-5 bg-neo-accent border-4 border-black font-black" style="box-shadow:var(--shadow-md)">Failed to load queue: ${escapeHtml(error.message)}</div>`;
+        grid.innerHTML = `<div class="col-span-full bevel-in p-4" style="background:#FF0000;color:#FFF;font-weight:900">Failed to load queue: ${escapeHtml(error.message)}</div>`;
         return;
       }
 
       if (!data || data.length === 0) {
         grid.innerHTML = `
-          <div class="col-span-full nb-card bg-neo-secondary p-12 text-center" style="box-shadow:var(--shadow-lg)">
-            <i class="fa-solid fa-circle-check text-6xl mb-4"></i>
-            <p class="font-black text-2xl uppercase">Queue is clear!</p>
-            <p class="text-sm font-bold mt-2">All public snippets submitted by users have been approved.</p>
+          <div class="col-span-full win-card">
+            <div class="win-titlebar"><i class="fa-solid fa-circle-check" style="margin-right:4px"></i> ALL CLEAR</div>
+            <div class="p-8 text-center" style="background:#FFFFCC">
+              <div style="font-size:48px;margin-bottom:8px">&#9989;</div>
+              <p style="font-family:'Arial Black',Impact,sans-serif;font-size:20px;text-transform:uppercase;margin-bottom:4px">Queue is clear!</p>
+              <p style="font-size:13px">All public snippets submitted by users have been approved.</p>
+            </div>
           </div>`;
         return;
       }
 
-      grid.innerHTML = data.map(s => `
-        <div id="snippet-card-${s.id}" class="nb-card flex flex-col">
-          <div class="flex items-center justify-between gap-2 flex-wrap p-3 border-b-4 border-black bg-neo-muted">
-            <span class="nb-badge nb-sticker bg-white"><i class="fa-solid fa-code"></i> ${escapeHtml(s.language)}</span>
-            <span class="nb-badge bg-neo-accent"><i class="fa-solid fa-clock"></i> Awaiting Review</span>
+      grid.innerHTML = data.map((s, i) => `
+        <div id="snippet-card-${s.id}" class="win-card flex flex-col">
+          <div class="win-titlebar justify-between">
+            <span style="font-size:12px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis"><i class="fa-solid fa-file-code" style="margin-right:4px"></i> ${escapeHtml(s.title)}</span>
+            <span class="blink" style="font-size:10px;color:#FFFF00">&#9888; REVIEW</span>
           </div>
-          <div class="p-5 space-y-4 flex-1">
-            <div>
-              <h3 class="text-2xl mb-1">${escapeHtml(s.title)}</h3>
-              <p class="text-xs font-mono font-bold break-all">User ID: ${escapeHtml(s.user_id)}</p>
+          <div class="p-3" style="background:#C0C0C0">
+            <div class="bevel-in p-2 mb-2" style="background:#FFFFCC">
+              <div class="flex items-center gap-2 flex-wrap mb-1">
+                <span class="win-badge" style="background:#FFFF00;color:#000"><i class="fa-solid fa-code"></i> ${escapeHtml(s.language)}</span>
+                <span class="win-badge" style="background:#FF0000;color:#FFF"><i class="fa-solid fa-clock"></i> Awaiting</span>
+              </div>
+              <p style="font-size:10px;font-family:'Courier New',monospace;color:#808080;word-break:break-all">User ID: ${escapeHtml(s.user_id)}</p>
             </div>
-            <div class="border-4 border-black max-h-48 overflow-y-auto">
+            <div class="bevel-in" style="max-height:160px;overflow-y:auto;background:#000">
               <pre class="${getPrismLangClass(s.language)}"><code>${escapeHtml(s.code_content)}</code></pre>
             </div>
           </div>
-          <div class="flex flex-col sm:flex-row items-stretch sm:justify-end gap-3 p-4 border-t-4 border-black bg-neo-bg">
-            <button onclick="handleAdminAction('${s.id}', 'reject')" class="nb-btn nb-btn-red"><i class="fa-solid fa-xmark"></i> Reject & Delete</button>
-            <button onclick="handleAdminAction('${s.id}', 'approve')" class="nb-btn"><i class="fa-solid fa-check"></i> Approve & Publish</button>
+          <div class="flex flex-col sm:flex-row items-stretch sm:justify-end gap-2 p-3 border-t-2" style="background:#C0C0C0;border-top-color:#fff">
+            <button onclick="handleAdminAction('${s.id}', 'reject')" class="win-btn win-btn-red"><i class="fa-solid fa-xmark"></i> Reject & Delete</button>
+            <button onclick="handleAdminAction('${s.id}', 'approve')" class="win-btn win-btn-green"><i class="fa-solid fa-check"></i> Approve & Publish</button>
           </div>
         </div>
       `).join('');
@@ -688,9 +1084,12 @@
       const id = path.split('/')[2].split('?')[0];
 
       const contentHtml = `
-        <div class="p-4 sm:p-8 max-w-4xl w-full mx-auto">
-          <div id="detail-content" class="nb-card p-6 sm:p-8" style="box-shadow:var(--shadow-lg)">
-            <p class="font-black uppercase"><i class="fa-solid fa-spinner fa-spin mr-2"></i> Loading snippet details...</p>
+        <div class="p-3 sm:p-6" style="max-width:1024px;width:100%;margin:0 auto">
+          <div id="detail-content" class="win-card">
+            <div class="win-titlebar"><i class="fa-solid fa-spinner fa-spin" style="margin-right:4px"></i> LOADING...</div>
+            <div class="p-4" style="background:#C0C0C0">
+              <p style="font-weight:900;text-transform:uppercase;font-size:13px">Loading snippet details...</p>
+            </div>
           </div>
         </div>`;
 
@@ -700,46 +1099,82 @@
       const box = document.getElementById('detail-content');
 
       if (error || !s) {
-        box.innerHTML = `<p class="font-black text-xl uppercase">Snippet not found or has been deleted.</p><a href="#/dashboard" class="nb-btn mt-5"><i class="fa-solid fa-arrow-left"></i> Back to Dashboard</a>`;
+        box.innerHTML = `
+          <div class="win-titlebar"><i class="fa-solid fa-triangle-exclamation" style="margin-right:4px"></i> ERROR - NOT FOUND</div>
+          <div class="p-6" style="background:#FFFFCC">
+            <p style="font-family:'Arial Black',Impact,sans-serif;font-size:20px;text-transform:uppercase;margin-bottom:12px">Snippet not found or has been deleted.</p>
+            <a href="#/dashboard" class="win-btn win-btn-navy"><i class="fa-solid fa-arrow-left"></i> Back to Dashboard</a>
+          </div>`;
         return;
       }
 
       box.innerHTML = `
-        <div class="flex flex-col sm:flex-row sm:items-start justify-between gap-4 mb-5 pb-5 border-b-4 border-black">
-          <div>
-            <div class="flex items-center flex-wrap gap-2 mb-3">
-              <span class="nb-badge nb-sticker bg-neo-muted"><i class="fa-solid fa-code"></i> ${escapeHtml(s.language)}</span>
-              ${s.is_public ? (s.is_approved
-                ? `<span class="nb-badge bg-neo-secondary"><i class="fa-solid fa-circle-check"></i> Approved</span>`
-                : `<span class="nb-badge bg-neo-accent"><i class="fa-solid fa-clock-rotate-left"></i> Awaiting Admin Review</span>`)
-                : `<span class="nb-badge"><i class="fa-solid fa-lock"></i> Private Snippet</span>`}
-            </div>
-            <h2 class="text-3xl sm:text-5xl">${escapeHtml(s.title)}</h2>
+        <!-- Title bar -->
+        <div class="win-titlebar justify-between">
+          <span><i class="fa-solid fa-file-code" style="margin-right:4px"></i> ${escapeHtml(s.title).toUpperCase()}</span>
+          <div class="flex gap-1">
+            <div class="bevel-out" style="width:16px;height:14px;background:#C0C0C0;display:flex;align-items:center;justify-content:center;font-size:8px;color:#000">_</div>
+            <div class="bevel-out" style="width:16px;height:14px;background:#C0C0C0;display:flex;align-items:center;justify-content:center;font-size:8px;color:#000">□</div>
+            <div class="bevel-out" style="width:16px;height:14px;background:#C0C0C0;display:flex;align-items:center;justify-content:center;font-size:8px;color:#000;font-weight:900">×</div>
           </div>
-          <a href="#/dashboard" class="nb-btn nb-btn-white shrink-0"><i class="fa-solid fa-arrow-left"></i> Back</a>
         </div>
 
-        <div class="flex flex-wrap gap-2 mb-6">
-          ${(s.tags || []).map(t => `<span class="border-2 border-black bg-neo-secondary px-2 py-0.5 text-xs font-black">#${escapeHtml(t)}</span>`).join('')}
-        </div>
-
-        <div class="border-4 border-black" style="box-shadow:var(--shadow-sm)">
-          <div class="flex items-center justify-between bg-neo-muted px-3 py-2 border-b-4 border-black">
-            <div class="flex items-center gap-2">
-              <span class="w-4 h-4 rounded-full bg-neo-accent border-2 border-black inline-block"></span>
-              <span class="w-4 h-4 rounded-full bg-neo-secondary border-2 border-black inline-block"></span>
-              <span class="w-4 h-4 rounded-full bg-white border-2 border-black inline-block"></span>
-              <span class="ml-2 text-xs font-mono font-bold uppercase">${escapeHtml(s.language.toLowerCase())} editor</span>
-            </div>
-            <button onclick="copySnippetCode(this, \`${encodeURIComponent(s.code_content)}\`)" class="nb-btn nb-btn-sm"><i class="fa-regular fa-copy"></i> Copy</button>
+        <!-- Toolbar row -->
+        <div class="flex items-center justify-between gap-2 flex-wrap p-2" style="background:#C0C0C0;border-bottom:2px solid #808080">
+          <a href="#/dashboard" class="win-btn win-btn-sm"><i class="fa-solid fa-arrow-left"></i> Back</a>
+          <div class="flex items-center gap-1 flex-wrap">
+            <span class="win-badge" style="background:#FFFF00;color:#000"><i class="fa-solid fa-code"></i> ${escapeHtml(s.language)}</span>
+            ${s.is_public ? (s.is_approved
+              ? `<span class="win-badge" style="background:#00AA00;color:#FFF"><i class="fa-solid fa-circle-check"></i> Approved</span>`
+              : `<span class="win-badge blink" style="background:#FF0000;color:#FFF"><i class="fa-solid fa-clock-rotate-left"></i> Awaiting Review</span>`)
+              : `<span class="win-badge" style="background:#808080;color:#FFF"><i class="fa-solid fa-lock"></i> Private</span>`}
+            <span class="win-badge" style="background:${s.is_public ? '#0000FF' : '#808080'};color:#FFF">${s.is_public ? '&#127760; Public' : '&#128274; Private'}</span>
           </div>
-          <pre class="${getPrismLangClass(s.language)}"><code>${escapeHtml(s.code_content)}</code></pre>
         </div>
 
-        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mt-6 pt-5 border-t-4 border-black text-xs font-black uppercase tracking-wider">
-          <span><i class="fa-regular fa-clock mr-1"></i> Created: ${new Date(s.created_at).toLocaleString('en-US')}</span>
+        <!-- Detail Body -->
+        <div class="p-4" style="background:#C0C0C0">
+          <!-- Title -->
+          <h2 class="text-3d" style="font-size:28px;line-height:1.1;margin-bottom:12px">${escapeHtml(s.title)}</h2>
+
+          <!-- Tags -->
+          <div class="flex flex-wrap gap-1 mb-4">
+            ${(s.tags || []).map(t => `<span style="border:2px solid #000;background:#FFFF00;padding:2px 8px;font-size:10px;font-weight:900;text-transform:uppercase">#${escapeHtml(t)}</span>`).join('')}
+          </div>
+
+          <!-- Code Window -->
+          <div class="win-card mb-4">
+            <div class="win-titlebar justify-between" style="padding:3px 6px">
+              <div class="flex items-center gap-2">
+                <span style="font-size:11px;font-family:'Courier New',monospace">${escapeHtml(s.language.toLowerCase())} editor</span>
+              </div>
+              <button onclick="copySnippetCode(this, \`${encodeURIComponent(s.code_content)}\`)" class="win-btn win-btn-sm" style="min-height:20px;padding:1px 8px;font-size:10px"><i class="fa-regular fa-copy"></i> Copy</button>
+            </div>
+            <div class="bevel-in m-1" style="background:#000">
+              <pre class="${getPrismLangClass(s.language)}"><code>${escapeHtml(s.code_content)}</code></pre>
+            </div>
+          </div>
+
+          ${hrGroove()}
+
+          <!-- Meta info (table-like) -->
+          <div class="bevel-in mt-4" style="background:#FFFFFF">
+            <table style="width:100%;font-size:12px;border-collapse:collapse">
+              <tr style="background:#E8E8E8">
+                <td style="padding:6px 10px;border-right:2px solid #808080;border-bottom:2px solid #808080;font-weight:900;text-transform:uppercase;width:120px"><i class="fa-regular fa-clock" style="margin-right:4px"></i> Created</td>
+                <td style="padding:6px 10px;border-bottom:2px solid #808080;font-family:'Courier New',monospace">${new Date(s.created_at).toLocaleString('en-US')}</td>
+              </tr>
+              <tr style="background:#FFFFFF">
+                <td style="padding:6px 10px;border-right:2px solid #808080;font-weight:900;text-transform:uppercase"><i class="fa-solid fa-globe" style="margin-right:4px"></i> Privacy</td>
+                <td style="padding:6px 10px;font-family:'Courier New',monospace">${s.is_public ? 'PUBLIC' : 'PRIVATE'}</td>
+              </tr>
+            </table>
+          </div>
+
           ${(s.user_id === session.user.id || userRole === 'admin') ? `
-            <button onclick="deleteSnippetAndRedirect('${s.id}')" class="nb-btn nb-btn-red nb-btn-sm"><i class="fa-solid fa-trash-can"></i> Delete This Snippet</button>` : ''}
+            <div class="mt-4 flex justify-end">
+              <button onclick="deleteSnippetAndRedirect('${s.id}')" class="win-btn win-btn-red"><i class="fa-solid fa-trash-can"></i> Delete This Snippet</button>
+            </div>` : ''}
         </div>
       `;
 
@@ -759,44 +1194,74 @@
       if (!session) { location.hash = '#/login'; return; }
 
       const contentHtml = `
-        <div class="p-4 sm:p-8 max-w-3xl w-full mx-auto">
-          <div class="nb-card p-6 sm:p-8 relative" style="box-shadow:var(--shadow-lg)">
-            <span class="nb-badge nb-sticker-r absolute -top-4 right-4 bg-neo-accent">New</span>
-            <h2 class="text-3xl sm:text-4xl mb-4"><i class="fa-solid fa-square-plus mr-2"></i>Add <span class="text-stroke">Snippet</span></h2>
-            <p class="text-xs font-bold bg-neo-secondary border-4 border-black p-3 mb-6"><i class="fa-solid fa-circle-info mr-1"></i> Public snippets require Admin review. Private snippets are saved instantly without approval.</p>
-
-            <form id="snippet-form" class="space-y-5">
-              <div>
-                <label class="nb-label" for="title">Snippet Title</label>
-                <input type="text" id="title" required placeholder="e.g. Pluck Deep Array Function" class="nb-input">
+        <div class="p-3 sm:p-6" style="max-width:768px;width:100%;margin:0 auto">
+          <div class="win-card">
+            <div class="win-titlebar justify-between">
+              <span><i class="fa-solid fa-square-plus" style="margin-right:4px"></i> NEW SNIPPET - CREATE</span>
+              <div class="flex gap-1">
+                <div class="bevel-out" style="width:16px;height:14px;background:#C0C0C0;display:flex;align-items:center;justify-content:center;font-size:8px;color:#000">_</div>
+                <div class="bevel-out" style="width:16px;height:14px;background:#C0C0C0;display:flex;align-items:center;justify-content:center;font-size:8px;color:#000">□</div>
+                <div class="bevel-out" style="width:16px;height:14px;background:#C0C0C0;display:flex;align-items:center;justify-content:center;font-size:8px;color:#000;font-weight:900">×</div>
+              </div>
+            </div>
+            <div class="p-4" style="background:#C0C0C0">
+              <!-- NEW badge -->
+              <div class="flex items-center gap-2 mb-3">
+                <span class="win-badge pulse-glow" style="background:#FF0000;color:#FFF;border-color:#ff5555 #800000 #800000 #ff5555"><i class="fa-solid fa-star"></i> NEW!</span>
+                <h2 style="font-family:'Arial Black',Impact,sans-serif;font-size:22px;text-transform:uppercase;line-height:1">Add Snippet</h2>
               </div>
 
-              <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <!-- Info box -->
+              <div class="bevel-in p-2 mb-4" style="background:#FFFFCC;font-size:12px;font-weight:700">
+                <i class="fa-solid fa-circle-info" style="color:#0000FF;margin-right:4px"></i>
+                Public snippets require Admin review. Private snippets are saved instantly without approval.
+              </div>
+
+              <form id="snippet-form" class="space-y-3">
                 <div>
-                  <label class="nb-label" for="language">Language / Framework</label>
-                  <select id="language" class="nb-input cursor-pointer">${langOptions('JavaScript')}</select>
+                  <label style="display:block;font-size:11px;font-weight:900;text-transform:uppercase;letter-spacing:0.15em;margin-bottom:4px" for="title">Snippet Title</label>
+                  <input type="text" id="title" required placeholder="e.g. Pluck Deep Array Function" class="win-input">
                 </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+                  <div>
+                    <label style="display:block;font-size:11px;font-weight:900;text-transform:uppercase;letter-spacing:0.15em;margin-bottom:4px" for="language">Language / Framework</label>
+                    <select id="language" class="win-input cursor-pointer">${langOptions('JavaScript')}</select>
+                  </div>
+                  <div>
+                    <label style="display:block;font-size:11px;font-weight:900;text-transform:uppercase;letter-spacing:0.15em;margin-bottom:4px" for="tags">Tags (comma separated)</label>
+                    <input type="text" id="tags" placeholder="js, array, helper" class="win-input">
+                  </div>
+                </div>
+
                 <div>
-                  <label class="nb-label" for="tags">Tags (comma separated)</label>
-                  <input type="text" id="tags" placeholder="js, array, helper" class="nb-input">
+                  <label style="display:block;font-size:11px;font-weight:900;text-transform:uppercase;letter-spacing:0.15em;margin-bottom:4px" for="code_content">Code</label>
+                  <textarea id="code_content" rows="10" required placeholder="// Write your code here..." class="win-input" style="background:#000;color:#00FF00;font-family:'Courier New',Courier,monospace;font-size:13px" spellcheck="false"></textarea>
                 </div>
-              </div>
 
-              <div>
-                <label class="nb-label" for="code_content">Code</label>
-                <textarea id="code_content" rows="10" required placeholder="// Write your code here..." class="nb-input font-mono text-sm" style="background:#000;color:#fff" spellcheck="false"></textarea>
-              </div>
+                <label for="is_public" class="flex items-center gap-3 bevel-in p-3 cursor-pointer" style="background:#FFFFCC">
+                  <input type="checkbox" id="is_public" checked style="width:20px;height:20px;accent-color:#000080" class="shrink-0">
+                  <span style="font-size:12px;font-weight:900;text-transform:uppercase">&#127760; Publish this snippet (requires Admin approval)</span>
+                </label>
 
-              <label for="is_public" class="flex items-center gap-3 border-4 border-black bg-neo-muted p-3 cursor-pointer">
-                <input type="checkbox" id="is_public" checked class="w-6 h-6 shrink-0" style="accent-color:#000">
-                <span class="text-sm font-black uppercase">Publish this snippet (requires Admin approval)</span>
-              </label>
+                ${hrGroove()}
 
-              <div class="flex flex-col-reverse sm:flex-row items-stretch sm:justify-end gap-3 pt-5 border-t-4 border-black">
-                <a href="#/dashboard" class="nb-btn nb-btn-white w-full sm:w-auto">Cancel</a>
-                <button type="submit" class="nb-btn nb-btn-red w-full sm:w-auto h-14"><i class="fa-solid fa-paper-plane"></i> Save Snippet</button>
-              </div>
-            </form>
+                <div class="flex flex-col-reverse sm:flex-row items-stretch sm:justify-end gap-2 pt-3">
+                  <a href="#/dashboard" class="win-btn w-full sm:w-auto text-center">Cancel</a>
+                  <button type="submit" class="win-btn win-btn-navy w-full sm:w-auto" style="min-height:2.75rem;font-size:14px"><i class="fa-solid fa-paper-plane"></i> SAVE SNIPPET</button>
+                </div>
+              </form>
+            </div>
+          </div>
+
+          <!-- Construction CTA -->
+          <div class="bg-construction p-2 mt-4">
+            <div class="bevel-out p-3 text-center" style="background:#C0C0C0">
+              <p style="font-family:'Arial Black',Impact,sans-serif;font-size:14px;text-transform:uppercase;letter-spacing:0.05em">
+                &#128679; THIS PAGE IS ALWAYS UNDER CONSTRUCTION &#128679;
+              </p>
+              <p style="font-size:11px;color:#808080;font-family:'Courier New',monospace">Last updated: ${new Date().toLocaleDateString('en-US')}</p>
+            </div>
           </div>
         </div>`;
 
@@ -835,8 +1300,9 @@
       navigator.clipboard.writeText(code).then(() => {
         const original = btn.innerHTML;
         btn.innerHTML = '<i class="fa-solid fa-check"></i> Copied!';
-        btn.style.background = 'var(--muted)';
-        setTimeout(() => { btn.innerHTML = original; btn.style.background = ''; }, 1500);
+        btn.style.background = '#00AA00';
+        btn.style.color = '#FFF';
+        setTimeout(() => { btn.innerHTML = original; btn.style.background = ''; btn.style.color = ''; }, 1500);
       }).catch(() => toast("Failed to copy to clipboard.", 'err'));
     }
 
