@@ -1,97 +1,187 @@
 <!DOCTYPE html>
-<html lang="id">
+<html lang="en">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>CodeStash — Code Snippet Manager</title>
-  
-  <!-- Favicon SVG Kustom Neubrutalist -->
-  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><rect width='32' height='32' fill='%23FFEB3B' stroke='%23000000' stroke-width='3'/><text x='50%' y='55%' dominant-baseline='middle' text-anchor='middle' font-family='Inter, sans-serif' font-weight='900' font-size='14' fill='%23000000'>CS</text></svg>">
 
-  <!-- Tailwind CSS v3 stable CDN -->
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><rect width='32' height='32' fill='%23FFD93D' stroke='%23000000' stroke-width='4'/><text x='50%' y='55%' dominant-baseline='middle' text-anchor='middle' font-family='sans-serif' font-weight='900' font-size='14' fill='%23000000'>CS</text></svg>">
+
   <script src="https://cdn.tailwindcss.com"></script>
   <script>
     tailwind.config = {
-      darkMode: 'class',
       theme: {
         extend: {
           colors: {
-            'bg': '#F3F4F6',
-            'surface': '#FFFFFF',
-            'primary': '#FFEB3B',
-            'secondary': '#4EE2CD',
-            'accent-pink': '#FF8A8A',
-            'border-color': '#000000',
-            'text-primary': '#000000',
-            'text-secondary': '#4B5563',
-            'code-bg': '#1E1E1E',
+            'neo-bg': '#FFFDF5',
+            'neo-accent': '#FF6B6B',
+            'neo-secondary': '#FFD93D',
+            'neo-muted': '#C4B5FD',
           },
           fontFamily: {
-            sans: ['Inter', 'sans-serif'],
-            mono: ['JetBrains Mono', 'Fira Code', 'Consolas', 'monospace'],
+            sans: ['Space Grotesk', 'sans-serif'],
+            mono: ['JetBrains Mono', 'Consolas', 'monospace'],
           },
-          borderRadius: {
-            'none': '0px',
-            'sm': '2px',
-            'md': '4px',
-          },
-          boxShadow: {
-            'neubrutal': '4px 4px 0px #000000',
-            'neubrutal-sm': '2px 2px 0px #000000',
-            'neubrutal-lg': '6px 6px 0px #000000',
-          }
         }
       }
     }
   </script>
-  <!-- Supabase JS v2 SDK -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-
-  <!-- FontAwesome 6 CDN -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
-  <!-- Prism.js Syntax Highlighting -->
   <link href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-tomorrow.min.css" rel="stylesheet" />
   <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-javascript.min.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-css.min.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-markup.min.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-dart.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-markup-templating.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-php.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-typescript.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-dart.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-python.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-sql.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-java.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-csharp.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-go.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-rust.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-bash.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-json.min.js"></script>
 
-  <!-- Google Fonts: Inter & JetBrains Mono -->
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;700;900&family=JetBrains+Mono:wght@500;700&display=block" rel="stylesheet">
+
   <style>
+    /* ========== DESIGN TOKENS ========== */
+    :root {
+      --ink: #000000;
+      --canvas: #FFFDF5;
+      --accent: #FF6B6B;
+      --secondary: #FFD93D;
+      --muted: #C4B5FD;
+      --white: #FFFFFF;
+      --shadow-sm: 4px 4px 0 0 #000;
+      --shadow-md: 8px 8px 0 0 #000;
+      --shadow-lg: 12px 12px 0 0 #000;
+    }
+
+    /* ========== BASE ========== */
+    html { scroll-behavior: auto; }
     body {
-      background-color: #F3F4F6;
-      color: #000000;
-      font-family: 'Inter', sans-serif;
+      font-family: 'Space Grotesk', sans-serif;
+      font-weight: 700;
+      color: var(--ink);
+      background-color: var(--canvas);
+      background-size: 40px 40px;
+      background-image:
+        linear-gradient(to right, rgba(0,0,0,0.08) 1px, transparent 1px),
+        linear-gradient(to bottom, rgba(0,0,0,0.08) 1px, transparent 1px);
     }
+    h1, h2, h3 { font-weight: 900; text-transform: uppercase; letter-spacing: -0.03em; line-height: 0.95; }
+    a, button, input, select, textarea { border-radius: 0; }
+    :focus-visible { outline: 3px solid #000; outline-offset: 2px; }
+    ::selection { background: var(--secondary); color: #000; }
+
+    /* ========== TEXTURES ========== */
+    .halftone {
+      background-image: radial-gradient(#000 1.5px, transparent 1.5px);
+      background-size: 16px 16px;
+    }
+    .overlay-dots {
+      background-image: radial-gradient(#000 2.5px, transparent 3px);
+      background-size: 10px 10px;
+    }
+    .text-stroke {
+      -webkit-text-stroke: 2px #000;
+      color: transparent;
+    }
+
+    /* ========== BUTTONS ========== */
+    .nb-btn {
+      display: inline-flex; align-items: center; justify-content: center; gap: .5rem;
+      min-height: 3rem; padding: .5rem 1.25rem;
+      border: 4px solid #000; background: var(--secondary); color: #000;
+      font-weight: 700; font-size: .85rem; text-transform: uppercase; letter-spacing: .05em;
+      box-shadow: var(--shadow-sm); cursor: pointer; text-align: center;
+      transition: transform .1s linear, box-shadow .1s linear, background-color .1s linear;
+    }
+    .nb-btn:hover { transform: translate(-2px, -2px); box-shadow: 6px 6px 0 0 #000; }
+    .nb-btn:active { transform: translate(2px, 2px); box-shadow: none; }
+    .nb-btn-red { background: var(--accent); }
+    .nb-btn-violet { background: var(--muted); }
+    .nb-btn-white { background: var(--white); }
+    .nb-btn-black { background: #000; color: #fff; }
+    .nb-btn-sm { min-height: 2.25rem; padding: .25rem .75rem; font-size: .7rem; border-width: 3px; box-shadow: 3px 3px 0 0 #000; }
+
+    /* ========== CARDS ========== */
+    .nb-card { background: var(--white); border: 4px solid #000; box-shadow: var(--shadow-md); }
+    .nb-lift { transition: transform .2s linear, box-shadow .2s linear; }
+    .nb-lift:hover { transform: translateY(-6px); box-shadow: 14px 14px 0 0 #000; }
+
+    /* ========== INPUTS ========== */
+    .nb-input {
+      width: 100%; border: 4px solid #000; background: var(--white); color: #000;
+      padding: .8rem 1rem; font-weight: 700; font-size: 1rem; min-height: 3.5rem;
+      transition: background-color .1s linear, box-shadow .1s linear;
+    }
+    .nb-input::placeholder { color: rgba(0,0,0,.4); }
+    .nb-input:focus-visible { background: var(--secondary); box-shadow: var(--shadow-sm); outline: none; }
+    .nb-label { display: block; font-size: .72rem; font-weight: 900; text-transform: uppercase; letter-spacing: .2em; margin-bottom: .4rem; }
+
+    /* ========== BADGES ========== */
+    .nb-badge {
+      display: inline-flex; align-items: center; gap: .3rem;
+      border: 3px solid #000; padding: .15rem .55rem;
+      font-weight: 900; font-size: .68rem; text-transform: uppercase; letter-spacing: .12em;
+      box-shadow: 2px 2px 0 0 #000; background: var(--white);
+      transition: transform .1s linear;
+    }
+    .nb-sticker { transform: rotate(-2deg); }
+    .nb-sticker-r { transform: rotate(2deg); }
+    .nb-sticker:hover, .nb-sticker-r:hover { transform: rotate(8deg); }
+
+    /* ========== NAV ========== */
+    .nb-nav {
+      display: flex; align-items: center; gap: .75rem;
+      padding: .6rem .75rem; border: 4px solid transparent;
+      font-weight: 700; font-size: .8rem; text-transform: uppercase; letter-spacing: .05em;
+      transition: all .1s linear;
+    }
+    .nb-nav:hover { border-color: #000; background: var(--accent); box-shadow: var(--shadow-sm); transform: translate(-2px,-2px); }
+    .nb-nav.active { border-color: #000; background: #000; color: #fff; box-shadow: var(--shadow-sm); }
+    .nb-nav.active:hover { background: #000; }
+    .nb-section-title { font-size: .65rem; font-weight: 900; text-transform: uppercase; letter-spacing: .25em; margin: 0 0 .5rem .25rem; }
+
+    /* ========== MARQUEE ========== */
+    .marquee { overflow: hidden; border-bottom: 4px solid #000; background: #000; color: var(--secondary); white-space: nowrap; }
+    .marquee-track { display: inline-block; padding: .5rem 0; animation: marquee 25s linear infinite; font-weight: 900; text-transform: uppercase; letter-spacing: .2em; font-size: .75rem; }
+    @keyframes marquee { from { transform: translateX(0); } to { transform: translateX(-50%); } }
+    @keyframes spin-slow { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+    .animate-spin-slow { animation: spin-slow 10s linear infinite; }
+
+    /* ========== TOAST ========== */
+    #toast-root { position: fixed; right: 1rem; bottom: 1rem; z-index: 100; display: flex; flex-direction: column; gap: .75rem; max-width: calc(100vw - 2rem); }
+    .toast { border: 4px solid #000; box-shadow: var(--shadow-sm); padding: .75rem 1rem; font-weight: 700; font-size: .85rem; animation: pop .15s linear; }
+    @keyframes pop { from { transform: translate(8px, 8px); } to { transform: translate(0,0); } }
+
+    /* ========== PRISM OVERRIDE ========== */
     pre[class*="language-"] {
-      margin: 0 !important;
-      border-radius: 0 !important;
-      background: #1E1E1E !important;
-      font-family: 'JetBrains Mono', monospace !important;
-      font-size: 0.85rem !important;
-      line-height: 1.6 !important;
+      margin: 0 !important; border-radius: 0 !important; background: #000 !important;
+      font-family: 'JetBrains Mono', monospace !important; font-size: .82rem !important; line-height: 1.6 !important;
     }
-    code[class*="language-"] {
-      font-family: 'JetBrains Mono', monospace !important;
+    code[class*="language-"] { font-family: 'JetBrains Mono', monospace !important; }
+
+    @media (prefers-reduced-motion: reduce) {
+      .animate-spin-slow, .marquee-track { animation: none; }
+      .nb-btn, .nb-lift, .nb-nav, .nb-badge { transition: none; }
     }
   </style>
 </head>
 <body class="min-h-screen flex flex-col md:flex-row overflow-x-hidden">
 
-  <!-- Main Mount Point -->
   <div id="app" class="flex flex-col md:flex-row w-full min-h-screen"></div>
+  <div id="toast-root" aria-live="polite"></div>
 
   <script>
-    // Inisialisasi Supabase Client
+    // ================= SUPABASE =================
     const SUPABASE_URL = "https://ubnqmyiwpppngekuctwe.supabase.co";
     const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InVibnFteWl3cHBwbmdla3VjdHdlIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTE1NzY2NzgsImV4cCI6MjEwNzE1MjY3OH0.zWhQBF2gyeD7HrWB1L9ATTuLwv4pdkS6ZE6CHSnBB8Y";
-    
+
     const db = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
     let currentUser = null;
     let userRole = 'user';
@@ -102,192 +192,209 @@
       return data?.role || 'user';
     }
 
-    // --- SIDEBAR & MOBILE LAYOUT WRAPPER (NEUBRUTALISM MENU STYLE) ---
+    // ================= LANGUAGES (single source of truth) =================
+    // v = value saved in DB, label = display text, icon = FontAwesome classes, prism = Prism grammar
+    const LANGUAGES = [
+      { v: 'HTML',       label: 'HTML',          icon: 'fa-brands fa-html5',   prism: 'markup' },
+      { v: 'CSS',        label: 'CSS',           icon: 'fa-brands fa-css3-alt', prism: 'css' },
+      { v: 'JavaScript', label: 'JavaScript',    icon: 'fa-brands fa-js',      prism: 'javascript' },
+      { v: 'TypeScript', label: 'TypeScript',    icon: 'fa-solid fa-code',     prism: 'typescript' },
+      { v: 'Dart',       label: 'Dart / Flutter', icon: 'fa-solid fa-code',    prism: 'dart' },
+      { v: 'PHP',        label: 'PHP / Laravel', icon: 'fa-brands fa-php',     prism: 'php' },
+      { v: 'Python',     label: 'Python',        icon: 'fa-brands fa-python',  prism: 'python' },
+      { v: 'SQL',        label: 'SQL',           icon: 'fa-solid fa-database', prism: 'sql' },
+      { v: 'Java',       label: 'Java',          icon: 'fa-brands fa-java',    prism: 'java' },
+      { v: 'C#',         label: 'C#',            icon: 'fa-solid fa-code',     prism: 'csharp' },
+      { v: 'Go',         label: 'Go',            icon: 'fa-solid fa-code',     prism: 'go' },
+      { v: 'Rust',       label: 'Rust',          icon: 'fa-brands fa-rust',    prism: 'rust' },
+      { v: 'Bash',       label: 'Bash / Shell',  icon: 'fa-solid fa-terminal', prism: 'bash' },
+      { v: 'JSON',       label: 'JSON',          icon: 'fa-solid fa-file-code', prism: 'json' },
+    ];
+
+    const langOptions = (selected = '') => LANGUAGES.map(l =>
+      `<option value="${escapeHtml(l.v)}" ${l.v === selected ? 'selected' : ''}>${escapeHtml(l.label)}</option>`
+    ).join('');
+
+    // ================= UI HELPERS =================
+    function toast(msg, type = 'ok') {
+      const colors = { ok: 'var(--secondary)', err: 'var(--accent)', info: 'var(--muted)' };
+      const el = document.createElement('div');
+      el.className = 'toast';
+      el.style.background = colors[type] || colors.ok;
+      el.textContent = msg;
+      document.getElementById('toast-root').appendChild(el);
+      setTimeout(() => el.remove(), 3200);
+    }
+
+    function escapeHtml(str) {
+      return String(str ?? '').replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#039;");
+    }
+
+    function getPrismLangClass(lang) {
+      const l = (lang || '').toLowerCase();
+      const found = LANGUAGES.find(x => x.v.toLowerCase() === l);
+      return `language-${found ? found.prism : 'javascript'}`;
+    }
+
+    function getHashParams() {
+      return new URLSearchParams(window.location.hash.split('?')[1] || '');
+    }
+
+    function marquee() {
+      const item = '<span class="mx-6">★ CODESTASH</span><span class="mx-6">SAVE</span><span class="mx-6">★ SNIPPET</span><span class="mx-6">COPY</span><span class="mx-6">★ PASTE</span><span class="mx-6">SHIP IT</span>';
+      return `<div class="marquee" aria-hidden="true"><div class="marquee-track">${item.repeat(6)}</div></div>`;
+    }
+
+    // ================= LAYOUT =================
     async function renderLayout(activeMenu, innerHtmlContent) {
       const { data: { session } } = await db.auth.getSession();
       currentUser = session?.user || null;
-      if (currentUser) {
-        userRole = await fetchUserRole(currentUser.id);
-      }
+      if (currentUser) userRole = await fetchUserRole(currentUser.id);
       const userEmail = currentUser?.email || 'Developer';
       const userInitial = userEmail.substring(0, 2).toUpperCase();
+      const params = getHashParams();
+      const curPrivacy = params.get('privacy');
+      const curLang = params.get('lang');
+      const isDash = activeMenu === 'dashboard';
+      const act = (cond) => cond ? 'active' : '';
+
+      const langLinks = (closeFn) => LANGUAGES.map(l =>
+        `<a href="#/dashboard?lang=${encodeURIComponent(l.v)}" ${closeFn} class="nb-nav ${act(isDash && curLang === l.v)}"><i class="${l.icon} w-5 text-center"></i><span>${escapeHtml(l.label)}</span></a>`
+      ).join('');
+
+      const navLinks = (closeFn) => `
+        <div>
+          <p class="nb-section-title">Main Menu</p>
+          <nav class="space-y-2">
+            <a href="#/dashboard" ${closeFn} class="nb-nav ${act(isDash && !curPrivacy && !curLang)}"><i class="fa-solid fa-chart-pie w-5 text-center"></i><span>Dashboard</span></a>
+            <a href="#/new" ${closeFn} class="nb-nav ${act(activeMenu === 'new')}"><i class="fa-solid fa-plus w-5 text-center"></i><span>New Snippet</span></a>
+          </nav>
+        </div>
+        ${userRole === 'admin' ? `
+          <div>
+            <p class="nb-section-title">Admin Panel</p>
+            <a href="#/admin" ${closeFn} class="nb-nav ${act(activeMenu === 'admin')}"><i class="fa-solid fa-user-shield w-5 text-center"></i><span>Pending Approvals</span></a>
+          </div>` : ''}
+        <div>
+          <p class="nb-section-title">Privacy Filter</p>
+          <nav class="space-y-2">
+            <a href="#/dashboard?privacy=public" ${closeFn} class="nb-nav ${act(isDash && curPrivacy === 'public')}"><i class="fa-solid fa-globe w-5 text-center"></i><span>Public</span></a>
+            <a href="#/dashboard?privacy=private" ${closeFn} class="nb-nav ${act(isDash && curPrivacy === 'private')}"><i class="fa-solid fa-lock w-5 text-center"></i><span>Private</span></a>
+          </nav>
+        </div>
+        <div>
+          <p class="nb-section-title">Quick Categories</p>
+          <nav class="space-y-2">${langLinks(closeFn)}</nav>
+        </div>`;
+
+      const logo = `
+        <div class="flex items-center gap-3">
+          <div class="bg-black text-white px-2.5 py-1.5 font-black text-sm border-4 border-black -rotate-3" style="box-shadow:3px 3px 0 0 #FF6B6B">CS</div>
+          <div>
+            <h1 class="font-black text-lg tracking-tighter">CODESTASH</h1>
+            <p class="text-[10px] font-black uppercase tracking-widest">Snippet Manager v2.0</p>
+          </div>
+        </div>`;
 
       return `
-        <!-- Mobile Top Navbar -->
-        <div class="md:hidden bg-surface border-b-2 border-border-color p-4 flex items-center justify-between sticky top-0 z-50 shadow-neubrutal-sm">
-          <div class="flex items-center space-x-3">
-            <div class="bg-black text-white p-1.5 font-black text-xs border-2 border-black shadow-neubrutal-sm">CS</div>
-            <span class="font-extrabold text-sm tracking-wider">CODESTASH</span>
+        <!-- Mobile Top Bar -->
+        <header class="md:hidden bg-neo-secondary border-b-4 border-black p-3 flex items-center justify-between sticky top-0 z-40">
+          <div class="flex items-center gap-2.5">
+            <div class="bg-black text-white px-2 py-1 font-black text-xs border-4 border-black -rotate-3">CS</div>
+            <span class="font-black text-base tracking-tighter uppercase">CodeStash</span>
           </div>
-          <button onclick="toggleMobileMenu()" class="bg-primary border-2 border-black px-3 py-1 font-bold text-xs shadow-neubrutal-sm hover:translate-x-0.5 hover:translate-y-0.5 active:shadow-none"><i class="fa-solid fa-bars mr-1"></i> Menu</button>
-        </div>
+          <button onclick="toggleMobileMenu()" aria-label="Open menu" class="nb-btn nb-btn-white nb-btn-sm"><i class="fa-solid fa-bars"></i> Menu</button>
+        </header>
 
-        <!-- Mobile Drawer Overlay -->
-        <div id="mobile-drawer" class="fixed inset-0 bg-black/50 z-50 hidden md:hidden flex" onclick="toggleMobileMenu()">
-          <div class="bg-surface w-72 h-full border-r-2 border-black flex flex-col justify-between p-4 overflow-y-auto" onclick="event.stopPropagation()">
+        <!-- Mobile Drawer -->
+        <div id="mobile-drawer" class="fixed inset-0 z-50 hidden md:hidden overlay-dots" onclick="toggleMobileMenu()">
+          <div class="bg-neo-bg w-72 max-w-[85vw] h-full border-r-4 border-black flex flex-col justify-between overflow-y-auto" style="box-shadow:8px 0 0 0 #000" onclick="event.stopPropagation()">
             <div>
-              <div class="flex justify-between items-center mb-6 pb-4 border-b-2 border-black">
-                <h3 class="font-black text-sm">NAVIGATION</h3>
-                <button onclick="toggleMobileMenu()" class="font-bold border-2 border-black px-2 py-0.5 bg-accent-pink shadow-neubrutal-sm"><i class="fa-solid fa-xmark"></i></button>
+              <div class="bg-neo-secondary border-b-4 border-black p-4 flex justify-between items-start">
+                ${logo}
+                <button onclick="toggleMobileMenu()" aria-label="Close menu" class="nb-btn nb-btn-red nb-btn-sm" style="min-width:2.25rem"><i class="fa-solid fa-xmark"></i></button>
               </div>
-              <nav class="space-y-2.5 font-bold text-sm">
-                <a href="#/dashboard" onclick="toggleMobileMenu()" class="block p-2.5 border-2 border-black bg-primary shadow-neubrutal-sm hover:translate-x-0.5 hover:translate-y-0.5"><i class="fa-solid fa-chart-pie mr-2"></i> Dashboard</a>
-                <a href="#/new" onclick="toggleMobileMenu()" class="block p-2.5 border-2 border-black bg-secondary shadow-neubrutal-sm hover:translate-x-0.5 hover:translate-y-0.5"><i class="fa-solid fa-plus mr-2"></i> New Snippet</a>
-                
-                ${userRole === 'admin' ? `
-                  <div class="pt-3 pb-1">
-                    <p class="text-[10px] font-black uppercase text-text-secondary tracking-wider">Admin Area</p>
-                  </div>
-                  <a href="#/admin" onclick="toggleMobileMenu()" class="block p-2.5 border-2 border-black bg-accent-pink shadow-neubrutal-sm hover:translate-x-0.5 hover:translate-y-0.5"><i class="fa-solid fa-user-shield mr-2"></i> Pending Approvals</a>
-                ` : ''}
-
-                <div class="pt-3 pb-1">
-                  <p class="text-[10px] font-black uppercase text-text-secondary tracking-wider">Filter Privasi</p>
-                </div>
-                <a href="#/dashboard?privacy=public" onclick="toggleMobileMenu()" class="block p-2.5 border-2 border-black bg-bg shadow-neubrutal-sm hover:bg-white hover:translate-x-0.5 hover:translate-y-0.5"><i class="fa-solid fa-globe mr-2"></i> Public Snippets</a>
-                <a href="#/dashboard?privacy=private" onclick="toggleMobileMenu()" class="block p-2.5 border-2 border-black bg-bg shadow-neubrutal-sm hover:bg-white hover:translate-x-0.5 hover:translate-y-0.5"><i class="fa-solid fa-lock mr-2"></i> Private Snippets</a>
-
-                <div class="pt-3 pb-1">
-                  <p class="text-[10px] font-black uppercase text-text-secondary tracking-wider">Kategori Cepat</p>
-                </div>
-                <a href="#/dashboard?lang=HTML" onclick="toggleMobileMenu()" class="block p-2 border-2 border-black bg-surface shadow-neubrutal-sm hover:translate-x-0.5 hover:translate-y-0.5"><i class="fa-brands fa-html5 w-4 text-orange-600 mr-2"></i> HTML & CSS</a>
-                <a href="#/dashboard?lang=JavaScript" onclick="toggleMobileMenu()" class="block p-2 border-2 border-black bg-surface shadow-neubrutal-sm hover:translate-x-0.5 hover:translate-y-0.5"><i class="fa-brands fa-js w-4 text-yellow-500 mr-2"></i> JavaScript</a>
-                <a href="#/dashboard?lang=Dart" onclick="toggleMobileMenu()" class="block p-2 border-2 border-black bg-surface shadow-neubrutal-sm hover:translate-x-0.5 hover:translate-y-0.5"><i class="fa-solid fa-code w-4 text-blue-500 mr-2"></i> Dart / Flutter</a>
-                <a href="#/dashboard?lang=PHP" onclick="toggleMobileMenu()" class="block p-2 border-2 border-black bg-surface shadow-neubrutal-sm hover:translate-x-0.5 hover:translate-y-0.5"><i class="fa-brands fa-php w-4 text-purple-600 mr-2"></i> PHP / Laravel</a>
-              </nav>
+              <div class="p-4 space-y-5">${navLinks('onclick="toggleMobileMenu()"')}</div>
             </div>
-            <div class="pt-4 mt-4 border-t-2 border-black">
-              <button onclick="handleLogout()" class="w-full bg-accent-pink border-2 border-black py-2 font-bold text-xs shadow-neubrutal-sm hover:bg-red-400 hover:translate-x-0.5 hover:translate-y-0.5"><i class="fa-solid fa-right-from-bracket mr-1"></i> Log Out</button>
+            <div class="p-4 border-t-4 border-black bg-neo-muted">
+              <p class="text-xs font-black truncate mb-3">${escapeHtml(userEmail)}</p>
+              <button onclick="handleLogout()" class="nb-btn nb-btn-red w-full"><i class="fa-solid fa-right-from-bracket"></i> Log Out</button>
             </div>
           </div>
         </div>
 
         <!-- Desktop Sidebar -->
-        <aside class="hidden md:flex w-64 lg:w-72 bg-surface border-r-2 border-border-color flex-col justify-between shrink-0 select-none h-screen sticky top-0">
+        <aside class="hidden md:flex w-64 lg:w-72 bg-neo-bg border-r-4 border-black flex-col justify-between shrink-0 select-none h-screen sticky top-0 overflow-y-auto">
           <div>
-            <div class="p-5 border-b-2 border-border-color flex items-center space-x-3 bg-primary">
-              <div class="bg-black text-white p-2 font-black text-sm border-2 border-black shadow-neubrutal-sm">CS</div>
-              <div>
-                <h1 class="font-extrabold text-base tracking-wider">CODESTASH</h1>
-                <p class="text-[10px] font-bold uppercase text-text-secondary">Snippet Manager v2.0</p>
-              </div>
-            </div>
-
-            <div class="p-4 space-y-5">
-              <div>
-                <p class="text-[10px] font-black uppercase text-text-secondary tracking-wider mb-2 px-2">Menu Utama</p>
-                <nav class="space-y-2">
-                  <a href="#/dashboard" class="flex items-center space-x-3 px-3 py-2.5 font-bold text-sm border-2 border-black ${activeMenu === 'dashboard' ? 'bg-black text-white shadow-neubrutal-sm' : 'bg-surface hover:bg-bg shadow-neubrutal-sm hover:translate-x-0.5 hover:translate-y-0.5'} transition-all">
-                    <i class="fa-solid fa-chart-pie w-5 text-center"></i>
-                    <span>Dashboard</span>
-                  </a>
-                  <a href="#/new" class="flex items-center space-x-3 px-3 py-2.5 font-bold text-sm border-2 border-black ${activeMenu === 'new' ? 'bg-black text-white shadow-neubrutal-sm' : 'bg-primary shadow-neubrutal-sm hover:translate-x-0.5 hover:translate-y-0.5'} transition-all">
-                    <i class="fa-solid fa-plus w-5 text-center"></i>
-                    <span>New Snippet</span>
-                  </a>
-                </nav>
-              </div>
-
-              ${userRole === 'admin' ? `
-                <div>
-                  <p class="text-[10px] font-black uppercase text-text-secondary tracking-wider mb-2 px-2">Admin Panel</p>
-                  <nav class="space-y-1">
-                    <a href="#/admin" class="flex items-center space-x-3 px-3 py-2.5 font-bold text-xs border-2 border-black ${activeMenu === 'admin' ? 'bg-black text-white shadow-neubrutal-sm' : 'bg-accent-pink shadow-neubrutal-sm hover:bg-red-300 hover:translate-x-0.5 hover:translate-y-0.5'} transition-all">
-                      <i class="fa-solid fa-user-shield w-4 text-center"></i>
-                      <span>Pending Approvals</span>
-                    </a>
-                  </nav>
-                </div>
-              ` : ''}
-
-              <div>
-                <p class="text-[10px] font-black uppercase text-text-secondary tracking-wider mb-2 px-2">Filter Privasi</p>
-                <div class="space-y-1.5 text-xs font-bold">
-                  <a href="#/dashboard?privacy=public" class="flex items-center space-x-3 px-3 py-2 border-2 border-black bg-surface shadow-neubrutal-sm hover:bg-bg hover:translate-x-0.5 hover:translate-y-0.5 transition-all"><i class="fa-solid fa-globe w-4 text-center"></i> <span>Public Snippets</span></a>
-                  <a href="#/dashboard?privacy=private" class="flex items-center space-x-3 px-3 py-2 border-2 border-black bg-surface shadow-neubrutal-sm hover:bg-bg hover:translate-x-0.5 hover:translate-y-0.5 transition-all"><i class="fa-solid fa-lock w-4 text-center"></i> <span>Private Snippets</span></a>
-                </div>
-              </div>
-
-              <div>
-                <p class="text-[10px] font-black uppercase text-text-secondary tracking-wider mb-2 px-2">Kategori Cepat</p>
-                <div class="space-y-1.5 text-xs font-bold">
-                  <a href="#/dashboard?lang=HTML" class="flex items-center space-x-2 px-3 py-2 border-2 border-black bg-surface shadow-neubrutal-sm hover:bg-bg hover:translate-x-0.5 hover:translate-y-0.5 transition-all"><i class="fa-brands fa-html5 w-4 text-orange-600"></i> <span>HTML & CSS</span></a>
-                  <a href="#/dashboard?lang=JavaScript" class="flex items-center space-x-2 px-3 py-2 border-2 border-black bg-surface shadow-neubrutal-sm hover:bg-bg hover:translate-x-0.5 hover:translate-y-0.5 transition-all"><i class="fa-brands fa-js w-4 text-yellow-500"></i> <span>JavaScript</span></a>
-                  <a href="#/dashboard?lang=Dart" class="flex items-center space-x-2 px-3 py-2 border-2 border-black bg-surface shadow-neubrutal-sm hover:bg-bg hover:translate-x-0.5 hover:translate-y-0.5 transition-all"><i class="fa-solid fa-code w-4 text-blue-500"></i> <span>Dart / Flutter</span></a>
-                  <a href="#/dashboard?lang=PHP" class="flex items-center space-x-2 px-3 py-2 border-2 border-black bg-surface shadow-neubrutal-sm hover:bg-bg hover:translate-x-0.5 hover:translate-y-0.5 transition-all"><i class="fa-brands fa-php w-4 text-purple-600"></i> <span>PHP / Laravel</span></a>
-                </div>
-              </div>
-            </div>
+            <div class="p-5 border-b-4 border-black bg-neo-secondary">${logo}</div>
+            <div class="p-4 space-y-6">${navLinks('')}</div>
           </div>
-
-          <div class="p-4 border-t-2 border-border-color bg-bg">
-            <div class="flex items-center space-x-2.5 mb-3 overflow-hidden">
-              <div class="w-8 h-8 bg-secondary border-2 border-black flex items-center justify-center font-black text-xs shrink-0 shadow-neubrutal-sm">${userInitial}</div>
+          <div class="p-4 border-t-4 border-black bg-neo-muted">
+            <div class="flex items-center gap-3 mb-3 overflow-hidden">
+              <div class="w-10 h-10 bg-neo-secondary border-4 border-black flex items-center justify-center font-black text-sm shrink-0 rotate-3" style="box-shadow:3px 3px 0 0 #000">${escapeHtml(userInitial)}</div>
               <div class="truncate">
-                <p class="text-xs font-extrabold truncate">${userEmail}</p>
-                <p class="text-[10px] text-text-secondary font-bold uppercase">${userRole === 'admin' ? '⚡ ADMIN' : 'USER SESSION'}</p>
+                <p class="text-xs font-black truncate">${escapeHtml(userEmail)}</p>
+                <p class="text-[10px] font-black uppercase tracking-widest">${userRole === 'admin' ? '⚡ ADMIN' : 'USER SESSION'}</p>
               </div>
             </div>
-            <button onclick="handleLogout()" class="w-full bg-accent-pink border-2 border-black py-2 font-bold text-xs shadow-neubrutal-sm hover:bg-red-400 hover:translate-x-0.5 hover:translate-y-0.5 transition-all">
-              <i class="fa-solid fa-right-from-bracket mr-1"></i> Log Out
-            </button>
+            <button onclick="handleLogout()" class="nb-btn nb-btn-red w-full"><i class="fa-solid fa-right-from-bracket"></i> Log Out</button>
           </div>
         </aside>
 
-        <!-- Main Content Wrapper -->
-        <main class="flex-1 flex flex-col min-h-screen bg-bg overflow-y-auto">
+        <!-- Main -->
+        <main class="flex-1 flex flex-col min-h-screen min-w-0">
+          ${marquee()}
           ${innerHtmlContent}
         </main>
       `;
     }
 
     window.toggleMobileMenu = function() {
-      const drawer = document.getElementById('mobile-drawer');
-      if (drawer) drawer.classList.toggle('hidden');
+      const d = document.getElementById('mobile-drawer');
+      if (d) { d.classList.toggle('hidden'); d.classList.toggle('flex'); }
     }
 
-    function getPrismLangClass(lang) {
-      const l = (lang || '').toLowerCase();
-      if (l === 'js' || l === 'javascript') return 'language-javascript';
-      if (l === 'html' || l === 'css') return `language-${l}`;
-      if (l === 'dart') return 'language-dart';
-      if (l === 'php') return 'language-php';
-      if (l === 'python') return 'language-python';
-      if (l === 'sql') return 'language-sql';
-      return 'language-javascript';
+    // ================= AUTH SHELL =================
+    function authShell({ color, title, subtitle, bodyHtml, footerHtml }) {
+      return `
+        <div class="flex-1 flex items-center justify-center p-4 sm:p-6 w-full min-h-screen relative overflow-hidden">
+          <div class="absolute top-10 left-6 w-20 h-20 bg-neo-accent border-4 border-black rounded-full hidden sm:block" style="box-shadow:var(--shadow-sm)"></div>
+          <div class="absolute bottom-10 right-8 w-24 h-24 bg-neo-muted border-4 border-black rotate-12 hidden sm:block" style="box-shadow:var(--shadow-sm)"></div>
+          <i class="fa-solid fa-star text-6xl absolute top-16 right-16 animate-spin-slow hidden md:block" style="color:var(--secondary);-webkit-text-stroke:3px #000"></i>
+
+          <div class="nb-card p-6 sm:p-8 w-full max-w-md relative z-10" style="box-shadow:var(--shadow-lg)">
+            <span class="nb-badge nb-sticker-r absolute -top-4 -right-3 bg-neo-accent">v2.0</span>
+            <div class="mb-6">
+              <div class="inline-block border-4 border-black p-3 font-black text-2xl -rotate-3 mb-4" style="background:${color};box-shadow:var(--shadow-sm)">CS</div>
+              <h2 class="text-3xl sm:text-4xl">${title}</h2>
+              <p class="text-sm mt-2 font-medium">${subtitle}</p>
+            </div>
+            <div id="auth-error" class="hidden mb-4 p-3 bg-neo-accent border-4 border-black text-sm font-bold" style="box-shadow:var(--shadow-sm)" role="alert"></div>
+            ${bodyHtml}
+            <p class="text-center text-sm font-bold mt-5">${footerHtml}</p>
+          </div>
+        </div>`;
     }
 
-    // --- 1. LOGIN VIEW ---
+    // ================= 1. LOGIN =================
     async function renderLogin(container) {
       const { data: { session } } = await db.auth.getSession();
       if (session) { location.hash = '#/dashboard'; return; }
 
-      container.innerHTML = `
-        <div class="flex-1 flex items-center justify-center p-4 sm:p-6 bg-bg w-full min-h-screen">
-          <div class="bg-surface border-2 border-border-color p-6 sm:p-8 w-full max-w-md shadow-neubrutal">
-            <div class="text-center mb-6">
-              <div class="inline-block bg-primary border-2 border-border-color p-3 font-black text-2xl shadow-neubrutal mb-2">CS</div>
-              <h2 class="text-xl sm:text-2xl font-extrabold">SIGN IN TO CODESTASH</h2>
-              <p class="text-xs sm:text-sm text-text-secondary mt-1">Akses kembali koleksi kode snippet Anda.</p>
-            </div>
-            
-            <div id="auth-error" class="hidden mb-4 p-3 bg-accent-pink border-2 border-border-color text-xs sm:text-sm font-bold shadow-neubrutal-sm"></div>
-
-            <form id="login-form" class="space-y-4">
-              <div>
-                <label class="block text-xs font-bold uppercase mb-1">Email Address</label>
-                <input type="email" id="email" required class="w-full border-2 border-border-color p-3 bg-surface text-sm font-medium focus:outline-none" placeholder="developer@example.com">
-              </div>
-              <div>
-                <label class="block text-xs font-bold uppercase mb-1">Password</label>
-                <input type="password" id="password" required class="w-full border-2 border-border-color p-3 bg-surface text-sm font-medium focus:outline-none" placeholder="••••••••">
-              </div>
-              <button type="submit" class="w-full bg-primary border-2 border-border-color py-3 font-bold text-sm shadow-neubrutal hover:shadow-neubrutal-sm transition-all mt-2"><i class="fa-solid fa-right-to-bracket mr-1"></i> Sign In</button>
-            </form>
-            <p class="text-center text-xs sm:text-sm font-medium mt-4">Belum punya akun? <a href="#/register" class="font-bold underline">Register di sini</a></p>
-          </div>
-        </div>
-      `;
+      container.innerHTML = authShell({
+        color: 'var(--secondary)',
+        title: 'Sign in <span class="text-stroke">CodeStash</span>',
+        subtitle: 'Get back to your code snippet collection.',
+        bodyHtml: `
+          <form id="login-form" class="space-y-4">
+            <div><label class="nb-label" for="email">Email Address</label>
+              <input type="email" id="email" required class="nb-input" placeholder="developer@example.com" autocomplete="email"></div>
+            <div><label class="nb-label" for="password">Password</label>
+              <input type="password" id="password" required class="nb-input" placeholder="••••••••" autocomplete="current-password"></div>
+            <button type="submit" class="nb-btn nb-btn-red w-full h-14 mt-2"><i class="fa-solid fa-right-to-bracket"></i> Sign In</button>
+          </form>`,
+        footerHtml: `Don't have an account? <a href="#/register" class="underline decoration-4 hover:bg-neo-secondary">Register here</a>`
+      });
 
       document.getElementById('login-form').addEventListener('submit', async (e) => {
         e.preventDefault();
@@ -295,7 +402,6 @@
         const password = document.getElementById('password').value;
         const errBox = document.getElementById('auth-error');
         errBox.classList.add('hidden');
-
         const { error } = await db.auth.signInWithPassword({ email, password });
         if (error) {
           errBox.textContent = error.message;
@@ -306,41 +412,27 @@
       });
     }
 
-    // --- 2. REGISTER VIEW ---
+    // ================= 2. REGISTER =================
     async function renderRegister(container) {
       const { data: { session } } = await db.auth.getSession();
       if (session) { location.hash = '#/dashboard'; return; }
 
-      container.innerHTML = `
-        <div class="flex-1 flex items-center justify-center p-4 sm:p-6 bg-bg w-full min-h-screen">
-          <div class="bg-surface border-2 border-border-color p-6 sm:p-8 w-full max-w-md shadow-neubrutal">
-            <div class="text-center mb-6">
-              <div class="inline-block bg-secondary border-2 border-border-color p-3 font-black text-2xl shadow-neubrutal mb-2">CS</div>
-              <h2 class="text-xl sm:text-2xl font-extrabold">CREATE AN ACCOUNT</h2>
-              <p class="text-xs sm:text-sm text-text-secondary mt-1">Mulai simpan potongan kodenu dengan aman.</p>
-            </div>
-            
-            <div id="auth-error" class="hidden mb-4 p-3 bg-accent-pink border-2 border-border-color text-xs sm:text-sm font-bold shadow-neubrutal-sm"></div>
-
-            <form id="register-form" class="space-y-4">
-              <div>
-                <label class="block text-xs font-bold uppercase mb-1">Nama Lengkap</label>
-                <input type="text" id="fullname" required class="w-full border-2 border-border-color p-3 bg-surface text-sm font-medium focus:outline-none" placeholder="Qaidy Rasyid">
-              </div>
-              <div>
-                <label class="block text-xs font-bold uppercase mb-1">Email Address</label>
-                <input type="email" id="email" required class="w-full border-2 border-border-color p-3 bg-surface text-sm font-medium focus:outline-none" placeholder="developer@example.com">
-              </div>
-              <div>
-                <label class="block text-xs font-bold uppercase mb-1">Password</label>
-                <input type="password" id="password" required class="w-full border-2 border-border-color p-3 bg-surface text-sm font-medium focus:outline-none" placeholder="••••••••">
-              </div>
-              <button type="submit" class="w-full bg-secondary border-2 border-border-color py-3 font-bold text-sm shadow-neubrutal hover:shadow-neubrutal-sm transition-all mt-2"><i class="fa-solid fa-user-plus mr-1"></i> Create Account</button>
-            </form>
-            <p class="text-center text-xs sm:text-sm font-medium mt-4">Sudah punya akun? <a href="#/login" class="font-bold underline">Sign In</a></p>
-          </div>
-        </div>
-      `;
+      container.innerHTML = authShell({
+        color: 'var(--muted)',
+        title: 'Create <span class="text-stroke">Account</span>',
+        subtitle: 'Start saving your code snippets safely.',
+        bodyHtml: `
+          <form id="register-form" class="space-y-4">
+            <div><label class="nb-label" for="fullname">Full Name</label>
+              <input type="text" id="fullname" required class="nb-input" placeholder="Qaidy Rasyid" autocomplete="name"></div>
+            <div><label class="nb-label" for="email">Email Address</label>
+              <input type="email" id="email" required class="nb-input" placeholder="developer@example.com" autocomplete="email"></div>
+            <div><label class="nb-label" for="password">Password</label>
+              <input type="password" id="password" required class="nb-input" placeholder="••••••••" autocomplete="new-password"></div>
+            <button type="submit" class="nb-btn nb-btn-violet w-full h-14 mt-2"><i class="fa-solid fa-user-plus"></i> Create Account</button>
+          </form>`,
+        footerHtml: `Already have an account? <a href="#/login" class="underline decoration-4 hover:bg-neo-secondary">Sign In</a>`
+      });
 
       document.getElementById('register-form').addEventListener('submit', async (e) => {
         e.preventDefault();
@@ -350,12 +442,7 @@
         const errBox = document.getElementById('auth-error');
         errBox.classList.add('hidden');
 
-        const { data, error } = await db.auth.signUp({
-          email,
-          password,
-          options: { data: { full_name: fullname } }
-        });
-
+        const { data, error } = await db.auth.signUp({ email, password, options: { data: { full_name: fullname } } });
         if (error) {
           errBox.textContent = error.message;
           errBox.classList.remove('hidden');
@@ -363,7 +450,7 @@
           if (data?.user) {
             await db.from('profiles').insert([{ id: data.user.id, full_name: fullname, role: 'user' }]);
           }
-          alert("Registrasi berhasil! Anda otomatis masuk.");
+          toast("Registration successful! You're now signed in.");
           location.hash = '#/dashboard';
         }
       });
@@ -374,82 +461,72 @@
       location.hash = '#/login';
     }
 
-    // --- 3. DASHBOARD VIEW ---
-    async function renderDashboard(container, path) {
+    // ================= 3. DASHBOARD =================
+    async function renderDashboard(container) {
       const { data: { session } } = await db.auth.getSession();
       if (!session) { location.hash = '#/login'; return; }
 
       const contentHtml = `
-        <div class="p-4 sm:p-8 max-w-7xl w-full mx-auto space-y-6">
-          <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 bg-surface border-2 border-border-color p-5 sm:p-6 shadow-neubrutal">
+        <div class="p-4 sm:p-8 max-w-7xl w-full mx-auto space-y-8">
+          <div class="nb-card bg-neo-muted p-5 sm:p-7 flex flex-col lg:flex-row lg:items-end justify-between gap-5 relative" style="box-shadow:var(--shadow-lg)">
+            <i class="fa-solid fa-star absolute -top-5 -left-4 text-4xl animate-spin-slow" style="color:var(--secondary);-webkit-text-stroke:2px #000"></i>
             <div>
-              <span id="filter-badge" class="bg-primary border-2 border-border-color px-2.5 py-0.5 text-xs font-bold uppercase shadow-neubrutal-sm"><i class="fa-solid fa-layer-group mr-1"></i> ALL SNIPPETS</span>
-              <h2 class="text-2xl sm:text-3xl font-extrabold mt-2">DASHBOARD LIBRARY</h2>
+              <span id="filter-badge" class="nb-badge nb-sticker bg-neo-secondary"><i class="fa-solid fa-layer-group"></i> ALL SNIPPETS</span>
+              <h2 class="text-4xl sm:text-5xl mt-3">Dashboard <span class="text-stroke">Library</span></h2>
             </div>
-            <div class="flex flex-col sm:flex-row items-stretch sm:items-center gap-3">
+            <div class="flex flex-col sm:flex-row items-stretch gap-3">
               <div class="relative w-full sm:w-64">
-                <span class="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none text-gray-400"><i class="fa-solid fa-magnifying-glass"></i></span>
-                <input type="text" id="search-input" placeholder="Cari judul atau tag..." class="border-2 border-border-color pl-10 pr-4 py-2 bg-surface text-sm font-medium w-full focus:outline-none">
+                <span class="absolute inset-y-0 left-0 flex items-center pl-4 pointer-events-none"><i class="fa-solid fa-magnifying-glass"></i></span>
+                <input type="text" id="search-input" placeholder="Search title or tag..." aria-label="Search snippets" class="nb-input" style="padding-left:2.75rem">
               </div>
-              <select id="lang-filter" class="border-2 border-border-color px-3 py-2 bg-surface text-sm font-bold focus:outline-none">
-                <option value="">Semua Bahasa</option>
-                <option value="HTML">HTML</option>
-                <option value="CSS">CSS</option>
-                <option value="JavaScript">JavaScript</option>
-                <option value="Dart">Dart</option>
-                <option value="PHP">PHP</option>
-                <option value="Python">Python</option>
-                <option value="SQL">SQL</option>
+              <select id="lang-filter" aria-label="Filter by language" class="nb-input sm:w-auto cursor-pointer uppercase">
+                <option value="">All Languages</option>
+                ${langOptions()}
               </select>
             </div>
           </div>
 
-          <div id="snippets-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 pb-12">
-            <div class="col-span-full text-center py-12 font-bold text-text-secondary"><i class="fa-solid fa-spinner fa-spin mr-2"></i> Memuat snippets...</div>
+          <div id="snippets-grid" class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-8 pb-12">
+            <div class="col-span-full text-center py-12 font-black uppercase"><i class="fa-solid fa-spinner fa-spin mr-2"></i> Loading snippets...</div>
           </div>
-        </div>
-      `;
+        </div>`;
 
       container.innerHTML = await renderLayout('dashboard', contentHtml);
 
-      const urlParams = new URLSearchParams(window.location.hash.split('?')[1]);
-      const langQuery = urlParams.get('lang');
-      const privacyQuery = urlParams.get('privacy');
+      const params = getHashParams();
+      const langQuery = params.get('lang');
+      const privacyQuery = params.get('privacy');
 
       if (langQuery) {
-        const selectEl = document.getElementById('lang-filter');
-        if (selectEl) selectEl.value = langQuery;
+        const el = document.getElementById('lang-filter');
+        if (el) el.value = langQuery;
+        const b = document.getElementById('filter-badge');
+        const found = LANGUAGES.find(l => l.v === langQuery);
+        if (b && found) b.innerHTML = `<i class="${found.icon}"></i> ${escapeHtml(found.label)}`;
       }
-      
       if (privacyQuery) {
-        const badgeEl = document.getElementById('filter-badge');
-        if (badgeEl) badgeEl.innerHTML = privacyQuery === 'public' ? '<i class="fa-solid fa-globe mr-1"></i> PUBLIC SNIPPETS' : '<i class="fa-solid fa-lock mr-1"></i> PRIVATE SNIPPETS';
+        const b = document.getElementById('filter-badge');
+        if (b) b.innerHTML = privacyQuery === 'public' ? '<i class="fa-solid fa-globe"></i> PUBLIC SNIPPETS' : '<i class="fa-solid fa-lock"></i> PRIVATE SNIPPETS';
       }
 
       await fetchAndRenderSnippets();
 
       document.getElementById('search-input').addEventListener('input', () => fetchAndRenderSnippets());
       document.getElementById('lang-filter').addEventListener('change', (e) => {
-        const currentParams = new URLSearchParams(window.location.hash.split('?')[1] || '');
-        if (e.target.value) {
-          currentParams.set('lang', e.target.value);
-        } else {
-          currentParams.delete('lang');
-        }
-        const newQuery = currentParams.toString();
-        location.hash = `#/dashboard${newQuery ? '?' + newQuery : ''}`;
+        const p = getHashParams();
+        if (e.target.value) p.set('lang', e.target.value); else p.delete('lang');
+        const q = p.toString();
+        location.hash = `#/dashboard${q ? '?' + q : ''}`;
       });
     }
 
     async function fetchAndRenderSnippets() {
       const searchVal = document.getElementById('search-input')?.value.toLowerCase() || '';
-      
-      const urlParams = new URLSearchParams(window.location.hash.split('?')[1] || '');
-      const langVal = urlParams.get('lang') || document.getElementById('lang-filter')?.value || '';
-      const privacyQuery = urlParams.get('privacy');
+      const params = getHashParams();
+      const langVal = params.get('lang') || document.getElementById('lang-filter')?.value || '';
+      const privacyQuery = params.get('privacy');
 
       let query = db.from('snippets').select('*').order('created_at', { ascending: false });
-      
       if (privacyQuery === 'public') {
         query = query.eq('is_public', true);
       } else if (privacyQuery === 'private') {
@@ -461,91 +538,84 @@
       if (!grid) return;
 
       if (error) {
-        grid.innerHTML = `<div class="col-span-full p-6 bg-accent-pink border-2 border-border-color font-bold shadow-neubrutal"><i class="fa-solid fa-triangle-exclamation mr-1"></i> Gagal memuat data: ${error.message}</div>`;
+        grid.innerHTML = `<div class="col-span-full p-6 bg-neo-accent border-4 border-black font-black" style="box-shadow:var(--shadow-md)"><i class="fa-solid fa-triangle-exclamation mr-1"></i> Failed to load data: ${escapeHtml(error.message)}</div>`;
         return;
       }
 
-      // KETENTUAN LOGIKA:
-      // Private snippets (!is_public) TIDAK diproses moderasi & TIDAK ada status pending.
-      // Public snippets (is_public) ditampilkan jika is_approved = true, ATAU jika dibuat oleh user sendiri (menampilkan status pending).
+      // Private: no moderation. Public: visible if approved OR owned by current user (shows pending status).
       const filtered = data.filter(s => {
-        const isPrivateOrApprovedOrOwn = (!s.is_public) || (s.is_approved === true) || (s.user_id === currentUser?.id);
+        const visible = (!s.is_public) || (s.is_approved === true) || (s.user_id === currentUser?.id);
         const matchTitle = s.title.toLowerCase().includes(searchVal);
         const matchTags = s.tags && s.tags.some(t => t.toLowerCase().includes(searchVal));
         const matchLang = !langVal || (s.language && s.language.toLowerCase() === langVal.toLowerCase());
-        
-        return isPrivateOrApprovedOrOwn && (matchTitle || matchTags) && matchLang;
+        return visible && (matchTitle || matchTags) && matchLang;
       });
 
       if (filtered.length === 0) {
         grid.innerHTML = `
-          <div class="col-span-full bg-surface border-2 border-border-color p-12 text-center shadow-neubrutal">
-            <p class="font-bold text-lg mb-2">Belum ada snippet ditemukan.</p>
-            <a href="#/new" class="inline-block bg-primary border-2 border-border-color px-4 py-2 font-bold text-sm shadow-neubrutal-sm hover:translate-x-0.5 hover:translate-y-0.5"><i class="fa-solid fa-plus mr-1"></i> Buat Snippet Pertama</a>
-          </div>
-        `;
+          <div class="col-span-full nb-card bg-neo-secondary p-10 sm:p-14 text-center relative" style="box-shadow:var(--shadow-lg)">
+            <div class="halftone absolute inset-0 opacity-10 pointer-events-none"></div>
+            <p class="font-black text-3xl sm:text-4xl uppercase mb-5 relative">Nothing here!</p>
+            <p class="font-bold mb-6 relative">No snippets found.</p>
+            <a href="#/new" class="nb-btn nb-btn-red relative"><i class="fa-solid fa-plus"></i> Create Your First Snippet</a>
+          </div>`;
         return;
       }
 
-      grid.innerHTML = filtered.map(s => `
-        <div class="bg-surface border-2 border-border-color p-5 shadow-neubrutal flex flex-col justify-between space-y-4 hover:translate-x-[-2px] hover:translate-y-[-2px] hover:shadow-neubrutal-lg transition-all cursor-pointer" onclick="if(event.target.tagName !== 'BUTTON') location.hash='#/detail/${s.id}'">
-          <div>
-            <div class="flex items-center justify-between mb-2 gap-1 flex-wrap">
-              <span class="bg-secondary border-2 border-border-color px-2 py-0.5 text-xs font-bold uppercase"><i class="fa-solid fa-code mr-1"></i> ${s.language}</span>
-              <div class="flex items-center space-x-1">
-                ${s.is_public ? (
-                  s.is_approved ? 
-                  `<span class="text-[10px] font-bold px-1.5 py-0.5 border border-black bg-green-200 text-green-900"><i class="fa-solid fa-circle-check"></i> Approved</span>` :
-                  `<span class="text-[10px] font-bold px-1.5 py-0.5 border border-black bg-orange-200 text-orange-900"><i class="fa-solid fa-clock-rotate-left"></i> Pending</span>`
-                ) : ''}
-                <span class="text-[10px] font-bold px-1.5 py-0.5 border border-black ${s.is_public ? 'bg-blue-100 text-blue-800' : 'bg-gray-200 text-gray-800'}">${s.is_public ? 'Public' : 'Private'}</span>
-              </div>
+      const headColors = ['var(--secondary)', 'var(--muted)', 'var(--accent)'];
+
+      grid.innerHTML = filtered.map((s, i) => `
+        <article class="nb-card nb-lift flex flex-col cursor-pointer" onclick="if(!event.target.closest('button')) location.hash='#/detail/${s.id}'">
+          <div class="flex items-center justify-between gap-2 flex-wrap p-3 border-b-4 border-black" style="background:${headColors[i % 3]}">
+            <span class="nb-badge nb-sticker bg-white"><i class="fa-solid fa-code"></i> ${escapeHtml(s.language)}</span>
+            <div class="flex items-center gap-1.5 flex-wrap">
+              ${s.is_public ? (s.is_approved
+                ? `<span class="nb-badge bg-white"><i class="fa-solid fa-circle-check"></i> Approved</span>`
+                : `<span class="nb-badge bg-neo-accent"><i class="fa-solid fa-clock-rotate-left"></i> Pending</span>`) : ''}
+              <span class="nb-badge ${s.is_public ? 'bg-neo-secondary' : 'bg-white'}">${s.is_public ? 'Public' : 'Private'}</span>
             </div>
-            <h3 class="font-extrabold text-lg line-clamp-1 mb-1 hover:underline">${escapeHtml(s.title)}</h3>
-            <div class="flex flex-wrap gap-1 mb-3">
-              ${(s.tags || []).map(t => `<span class="bg-bg border border-black px-1.5 py-0.5 text-[10px] font-bold">#${escapeHtml(t)}</span>`).join('')}
+          </div>
+          <div class="p-5 flex-1 space-y-3">
+            <h3 class="text-2xl line-clamp-1 hover:underline" style="letter-spacing:-0.02em">${escapeHtml(s.title)}</h3>
+            <div class="flex flex-wrap gap-1.5">
+              ${(s.tags || []).map(t => `<span class="border-2 border-black bg-neo-bg px-1.5 py-0.5 text-[11px] font-black">#${escapeHtml(t)}</span>`).join('')}
             </div>
-            
-            <div class="border-2 border-border-color max-h-36 overflow-hidden relative">
+            <div class="border-4 border-black max-h-36 overflow-hidden">
               <pre class="${getPrismLangClass(s.language)}"><code>${escapeHtml(s.code_content)}</code></pre>
             </div>
           </div>
-          <div class="flex items-center justify-between pt-2 border-t-2 border-border-color">
-            <button onclick="event.stopPropagation(); copySnippetCode(this, \`${encodeURIComponent(s.code_content)}\`)" class="border-2 border-border-color px-3 py-1 font-bold text-xs bg-primary shadow-neubrutal-sm hover:bg-yellow-300 hover:translate-x-0.5 hover:translate-y-0.5"><i class="fa-regular fa-copy mr-1"></i> Copy Code</button>
-            <span class="text-xs font-bold text-text-secondary hover:underline">Lihat Detail <i class="fa-solid fa-arrow-right ml-0.5"></i></span>
+          <div class="flex items-center justify-between gap-2 p-4 border-t-4 border-black bg-neo-bg">
+            <button onclick="event.stopPropagation(); copySnippetCode(this, \`${encodeURIComponent(s.code_content)}\`)" class="nb-btn nb-btn-sm"><i class="fa-regular fa-copy"></i> Copy</button>
+            <span class="text-xs font-black uppercase tracking-wider">Details <i class="fa-solid fa-arrow-right ml-1"></i></span>
           </div>
-        </div>
+        </article>
       `).join('');
 
       if (window.Prism) Prism.highlightAll();
     }
 
-    // --- 4. ADMIN APPROVAL VIEW ---
+    // ================= 4. ADMIN =================
     async function renderAdminPanel(container) {
       const { data: { session } } = await db.auth.getSession();
       if (!session) { location.hash = '#/login'; return; }
 
       userRole = await fetchUserRole(session.user.id);
       if (userRole !== 'admin') {
-        alert("Akses ditolak! Anda bukan admin.");
+        toast("Access denied! You are not an admin.", 'err');
         location.hash = '#/dashboard';
         return;
       }
 
       const contentHtml = `
-        <div class="p-4 sm:p-8 max-w-7xl w-full mx-auto space-y-6">
-          <div class="bg-surface border-2 border-border-color p-5 sm:p-6 shadow-neubrutal flex items-center justify-between">
-            <div>
-              <span class="bg-accent-pink border-2 border-border-color px-2.5 py-0.5 text-xs font-bold uppercase shadow-neubrutal-sm"><i class="fa-solid fa-user-shield mr-1"></i> ADMIN MODERATION PANEL</span>
-              <h2 class="text-2xl sm:text-3xl font-extrabold mt-2">PENDING PUBLIC SNIPPETS</h2>
-            </div>
+        <div class="p-4 sm:p-8 max-w-7xl w-full mx-auto space-y-8">
+          <div class="nb-card bg-neo-accent p-5 sm:p-7" style="box-shadow:var(--shadow-lg)">
+            <span class="nb-badge nb-sticker bg-white"><i class="fa-solid fa-user-shield"></i> Admin Moderation Panel</span>
+            <h2 class="text-4xl sm:text-5xl mt-3">Pending <span class="text-stroke">Public</span> Snippets</h2>
           </div>
-
-          <div id="admin-grid" class="grid grid-cols-1 md:grid-cols-2 gap-6 pb-12">
-            <div class="col-span-full text-center py-12 font-bold text-text-secondary"><i class="fa-solid fa-spinner fa-spin mr-2"></i> Memuat antrean snippet...</div>
+          <div id="admin-grid" class="grid grid-cols-1 lg:grid-cols-2 gap-8 pb-12">
+            <div class="col-span-full text-center py-12 font-black uppercase"><i class="fa-solid fa-spinner fa-spin mr-2"></i> Loading approval queue...</div>
           </div>
-        </div>
-      `;
+        </div>`;
 
       container.innerHTML = await renderLayout('admin', contentHtml);
       await fetchAndRenderAdminQueue();
@@ -555,44 +625,41 @@
       const grid = document.getElementById('admin-grid');
       if (!grid) return;
 
-      // Hanya mengambil snippet PUBLIC yang belum diapprove (is_public = true, is_approved = false)
       const { data, error } = await db.from('snippets').select('*').eq('is_public', true).eq('is_approved', false).order('created_at', { ascending: false });
 
       if (error) {
-        grid.innerHTML = `<div class="col-span-full p-4 bg-accent-pink border-2 border-border-color font-bold shadow-neubrutal">Gagal memuat antrean: ${error.message}</div>`;
+        grid.innerHTML = `<div class="col-span-full p-5 bg-neo-accent border-4 border-black font-black" style="box-shadow:var(--shadow-md)">Failed to load queue: ${escapeHtml(error.message)}</div>`;
         return;
       }
 
       if (!data || data.length === 0) {
         grid.innerHTML = `
-          <div class="col-span-full bg-surface border-2 border-border-color p-12 text-center shadow-neubrutal">
-            <i class="fa-solid fa-circle-check text-4xl text-green-500 mb-3"></i>
-            <p class="font-bold text-lg">Tidak ada antrean persetujuan publik saat ini!</p>
-            <p class="text-xs text-text-secondary mt-1">Semua snippet publik yang diunggah pengguna telah disetujui.</p>
-          </div>
-        `;
+          <div class="col-span-full nb-card bg-neo-secondary p-12 text-center" style="box-shadow:var(--shadow-lg)">
+            <i class="fa-solid fa-circle-check text-6xl mb-4"></i>
+            <p class="font-black text-2xl uppercase">Queue is clear!</p>
+            <p class="text-sm font-bold mt-2">All public snippets submitted by users have been approved.</p>
+          </div>`;
         return;
       }
 
       grid.innerHTML = data.map(s => `
-        <div id="snippet-card-${s.id}" class="bg-surface border-2 border-border-color p-6 shadow-neubrutal space-y-4">
-          <div class="flex items-center justify-between">
-            <span class="bg-secondary border-2 border-border-color px-2 py-0.5 text-xs font-bold uppercase"><i class="fa-solid fa-code mr-1"></i> ${s.language}</span>
-            <span class="bg-orange-100 border border-black text-orange-800 text-xs font-bold px-2 py-0.5"><i class="fa-solid fa-clock mr-1"></i> Menunggu Konfirmasi</span>
+        <div id="snippet-card-${s.id}" class="nb-card flex flex-col">
+          <div class="flex items-center justify-between gap-2 flex-wrap p-3 border-b-4 border-black bg-neo-muted">
+            <span class="nb-badge nb-sticker bg-white"><i class="fa-solid fa-code"></i> ${escapeHtml(s.language)}</span>
+            <span class="nb-badge bg-neo-accent"><i class="fa-solid fa-clock"></i> Awaiting Review</span>
           </div>
-
-          <div>
-            <h3 class="font-extrabold text-xl mb-1">${escapeHtml(s.title)}</h3>
-            <p class="text-xs text-text-secondary font-mono">User ID: ${s.user_id}</p>
+          <div class="p-5 space-y-4 flex-1">
+            <div>
+              <h3 class="text-2xl mb-1">${escapeHtml(s.title)}</h3>
+              <p class="text-xs font-mono font-bold break-all">User ID: ${escapeHtml(s.user_id)}</p>
+            </div>
+            <div class="border-4 border-black max-h-48 overflow-y-auto">
+              <pre class="${getPrismLangClass(s.language)}"><code>${escapeHtml(s.code_content)}</code></pre>
+            </div>
           </div>
-
-          <div class="border-2 border-border-color max-h-48 overflow-y-auto">
-            <pre class="${getPrismLangClass(s.language)}"><code>${escapeHtml(s.code_content)}</code></pre>
-          </div>
-
-          <div class="flex items-center justify-end space-x-3 pt-3 border-t-2 border-border-color">
-            <button onclick="handleAdminAction('${s.id}', 'reject')" class="bg-accent-pink border-2 border-black px-4 py-2 font-bold text-xs shadow-neubrutal-sm hover:bg-red-400 hover:translate-x-0.5 hover:translate-y-0.5"><i class="fa-solid fa-xmark mr-1"></i> Tolak & Hapus</button>
-            <button onclick="handleAdminAction('${s.id}', 'approve')" class="bg-secondary border-2 border-black px-4 py-2 font-bold text-xs shadow-neubrutal-sm hover:bg-teal-300 hover:translate-x-0.5 hover:translate-y-0.5"><i class="fa-solid fa-check mr-1"></i> Approve & Publish</button>
+          <div class="flex flex-col sm:flex-row items-stretch sm:justify-end gap-3 p-4 border-t-4 border-black bg-neo-bg">
+            <button onclick="handleAdminAction('${s.id}', 'reject')" class="nb-btn nb-btn-red"><i class="fa-solid fa-xmark"></i> Reject & Delete</button>
+            <button onclick="handleAdminAction('${s.id}', 'approve')" class="nb-btn"><i class="fa-solid fa-check"></i> Approve & Publish</button>
           </div>
         </div>
       `).join('');
@@ -603,25 +670,17 @@
     window.handleAdminAction = async function(id, action) {
       if (action === 'approve') {
         const { error } = await db.from('snippets').update({ is_approved: true }).eq('id', id);
-        if (error) {
-          alert("Gagal menyetujui: " + error.message);
-        } else {
-          alert("Snippet publik berhasil disetujui!");
-          await fetchAndRenderAdminQueue();
-        }
+        if (error) toast("Failed to approve: " + error.message, 'err');
+        else { toast("Public snippet approved!"); await fetchAndRenderAdminQueue(); }
       } else if (action === 'reject') {
-        if (!confirm("Tolak dan hapus snippet ini dari sistem?")) return;
+        if (!confirm("Reject and delete this snippet from the system?")) return;
         const { error } = await db.from('snippets').delete().eq('id', id);
-        if (error) {
-          alert("Gagal menghapus: " + error.message);
-        } else {
-          alert("Snippet berhasil ditolak dan dihapus.");
-          await fetchAndRenderAdminQueue();
-        }
+        if (error) toast("Failed to delete: " + error.message, 'err');
+        else { toast("Snippet rejected and deleted.", 'info'); await fetchAndRenderAdminQueue(); }
       }
     }
 
-    // --- 5. DETAIL SNIPPET VIEW ---
+    // ================= 5. DETAIL =================
     async function renderDetailSnippet(container, path) {
       const { data: { session } } = await db.auth.getSession();
       if (!session) { location.hash = '#/login'; return; }
@@ -630,60 +689,57 @@
 
       const contentHtml = `
         <div class="p-4 sm:p-8 max-w-4xl w-full mx-auto">
-          <div id="detail-content" class="bg-surface border-2 border-border-color p-6 sm:p-8 shadow-neubrutal">
-            <p class="font-bold"><i class="fa-solid fa-spinner fa-spin mr-2"></i> Memuat detail snippet...</p>
+          <div id="detail-content" class="nb-card p-6 sm:p-8" style="box-shadow:var(--shadow-lg)">
+            <p class="font-black uppercase"><i class="fa-solid fa-spinner fa-spin mr-2"></i> Loading snippet details...</p>
           </div>
-        </div>
-      `;
+        </div>`;
 
       container.innerHTML = await renderLayout('dashboard', contentHtml);
 
       const { data: s, error } = await db.from('snippets').select('*').eq('id', id).single();
-      const contentBox = document.getElementById('detail-content');
+      const box = document.getElementById('detail-content');
 
       if (error || !s) {
-        contentBox.innerHTML = `<p class="font-bold text-red-600">Snippet tidak ditemukan atau telah dihapus.</p><a href="#/dashboard" class="inline-block mt-4 underline font-bold"><i class="fa-solid fa-arrow-left mr-1"></i> Kembali ke Dashboard</a>`;
+        box.innerHTML = `<p class="font-black text-xl uppercase">Snippet not found or has been deleted.</p><a href="#/dashboard" class="nb-btn mt-5"><i class="fa-solid fa-arrow-left"></i> Back to Dashboard</a>`;
         return;
       }
 
-      contentBox.innerHTML = `
-        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-4 pb-4 border-b-2 border-border-color">
+      box.innerHTML = `
+        <div class="flex flex-col sm:flex-row sm:items-start justify-between gap-4 mb-5 pb-5 border-b-4 border-black">
           <div>
-            <div class="flex items-center space-x-2 mb-2">
-              <span class="bg-secondary border-2 border-border-color px-2.5 py-1 text-xs font-bold uppercase"><i class="fa-solid fa-code mr-1"></i> ${s.language}</span>
-              ${s.is_public ? (
-                s.is_approved ? 
-                `<span class="text-xs font-bold px-2 py-0.5 border border-black bg-green-100 text-green-800"><i class="fa-solid fa-circle-check"></i> Approved</span>` :
-                `<span class="text-xs font-bold px-2 py-0.5 border border-black bg-orange-100 text-orange-800"><i class="fa-solid fa-clock-rotate-left"></i> Menunggu Konfirmasi Admin</span>`
-              ) : '<span class="text-xs font-bold px-2 py-0.5 border border-black bg-gray-200 text-gray-800"><i class="fa-solid fa-lock"></i> Private Snippet</span>'}
+            <div class="flex items-center flex-wrap gap-2 mb-3">
+              <span class="nb-badge nb-sticker bg-neo-muted"><i class="fa-solid fa-code"></i> ${escapeHtml(s.language)}</span>
+              ${s.is_public ? (s.is_approved
+                ? `<span class="nb-badge bg-neo-secondary"><i class="fa-solid fa-circle-check"></i> Approved</span>`
+                : `<span class="nb-badge bg-neo-accent"><i class="fa-solid fa-clock-rotate-left"></i> Awaiting Admin Review</span>`)
+                : `<span class="nb-badge"><i class="fa-solid fa-lock"></i> Private Snippet</span>`}
             </div>
-            <h2 class="text-2xl sm:text-3xl font-extrabold">${escapeHtml(s.title)}</h2>
+            <h2 class="text-3xl sm:text-5xl">${escapeHtml(s.title)}</h2>
           </div>
-          <a href="#/dashboard" class="border-2 border-border-color px-4 py-2 font-bold text-sm bg-bg shadow-neubrutal-sm text-center hover:translate-x-0.5 hover:translate-y-0.5"><i class="fa-solid fa-arrow-left mr-1"></i> Kembali</a>
+          <a href="#/dashboard" class="nb-btn nb-btn-white shrink-0"><i class="fa-solid fa-arrow-left"></i> Back</a>
         </div>
 
-        <div class="flex flex-wrap gap-1 mb-6">
-          ${(s.tags || []).map(t => `<span class="bg-bg border border-black px-2 py-0.5 text-xs font-bold">#${escapeHtml(t)}</span>`).join('')}
+        <div class="flex flex-wrap gap-2 mb-6">
+          ${(s.tags || []).map(t => `<span class="border-2 border-black bg-neo-secondary px-2 py-0.5 text-xs font-black">#${escapeHtml(t)}</span>`).join('')}
         </div>
 
-        <div class="border-2 border-border-color">
-          <div class="flex items-center justify-between bg-[#111111] text-white px-4 py-2 border-b-2 border-border-color text-xs font-mono font-bold">
-            <div class="flex items-center space-x-2">
-              <span class="w-3 h-3 rounded-full bg-red-500 inline-block"></span>
-              <span class="w-3 h-3 rounded-full bg-yellow-500 inline-block"></span>
-              <span class="w-3 h-3 rounded-full bg-green-500 inline-block"></span>
-              <span class="ml-2 text-gray-400">${s.language.toLowerCase()} editor</span>
+        <div class="border-4 border-black" style="box-shadow:var(--shadow-sm)">
+          <div class="flex items-center justify-between bg-neo-muted px-3 py-2 border-b-4 border-black">
+            <div class="flex items-center gap-2">
+              <span class="w-4 h-4 rounded-full bg-neo-accent border-2 border-black inline-block"></span>
+              <span class="w-4 h-4 rounded-full bg-neo-secondary border-2 border-black inline-block"></span>
+              <span class="w-4 h-4 rounded-full bg-white border-2 border-black inline-block"></span>
+              <span class="ml-2 text-xs font-mono font-bold uppercase">${escapeHtml(s.language.toLowerCase())} editor</span>
             </div>
-            <button onclick="copySnippetCode(this, \`${encodeURIComponent(s.code_content)}\`)" class="bg-primary text-black px-3 py-1 border border-black font-sans font-bold hover:bg-yellow-300"><i class="fa-regular fa-copy mr-1"></i> Copy Code</button>
+            <button onclick="copySnippetCode(this, \`${encodeURIComponent(s.code_content)}\`)" class="nb-btn nb-btn-sm"><i class="fa-regular fa-copy"></i> Copy</button>
           </div>
           <pre class="${getPrismLangClass(s.language)}"><code>${escapeHtml(s.code_content)}</code></pre>
         </div>
 
-        <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 mt-6 pt-4 border-t-2 border-border-color text-xs font-bold text-text-secondary">
-          <span><i class="fa-regular fa-clock mr-1"></i> Dibuat pada: ${new Date(s.created_at).toLocaleString('id-ID')}</span>
+        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mt-6 pt-5 border-t-4 border-black text-xs font-black uppercase tracking-wider">
+          <span><i class="fa-regular fa-clock mr-1"></i> Created: ${new Date(s.created_at).toLocaleString('en-US')}</span>
           ${(s.user_id === session.user.id || userRole === 'admin') ? `
-            <button onclick="deleteSnippetAndRedirect('${s.id}')" class="text-red-600 hover:underline"><i class="fa-solid fa-trash-can mr-1"></i> Hapus Snippet Ini</button>
-          ` : ''}
+            <button onclick="deleteSnippetAndRedirect('${s.id}')" class="nb-btn nb-btn-red nb-btn-sm"><i class="fa-solid fa-trash-can"></i> Delete This Snippet</button>` : ''}
         </div>
       `;
 
@@ -691,69 +747,58 @@
     }
 
     window.deleteSnippetAndRedirect = async function(id) {
-      if (!confirm("Yakin ingin menghapus snippet ini?")) return;
+      if (!confirm("Are you sure you want to delete this snippet?")) return;
       const { error } = await db.from('snippets').delete().eq('id', id);
-      if (error) {
-        alert("Gagal menghapus: " + error.message);
-      } else {
-        location.hash = '#/dashboard';
-      }
+      if (error) toast("Failed to delete: " + error.message, 'err');
+      else { toast("Snippet deleted.", 'info'); location.hash = '#/dashboard'; }
     }
 
-    // --- 6. NEW SNIPPET VIEW ---
+    // ================= 6. NEW SNIPPET =================
     async function renderNewSnippet(container) {
       const { data: { session } } = await db.auth.getSession();
       if (!session) { location.hash = '#/login'; return; }
 
       const contentHtml = `
         <div class="p-4 sm:p-8 max-w-3xl w-full mx-auto">
-          <div class="bg-surface border-2 border-border-color p-6 sm:p-8 shadow-neubrutal">
-            <h2 class="text-xl sm:text-2xl font-extrabold mb-2"><i class="fa-solid fa-square-plus mr-2"></i> TAMBAH KODE SNIPPET BARU</h2>
-            <p class="text-xs text-text-secondary mb-6 font-bold bg-yellow-100 border border-black p-2"><i class="fa-solid fa-info-circle mr-1"></i> Snippet publik memerlukan peninjauan Admin. Snippet private langsung tersimpan secara instan tanpa perlu persetujuan.</p>
+          <div class="nb-card p-6 sm:p-8 relative" style="box-shadow:var(--shadow-lg)">
+            <span class="nb-badge nb-sticker-r absolute -top-4 right-4 bg-neo-accent">New</span>
+            <h2 class="text-3xl sm:text-4xl mb-4"><i class="fa-solid fa-square-plus mr-2"></i>Add <span class="text-stroke">Snippet</span></h2>
+            <p class="text-xs font-bold bg-neo-secondary border-4 border-black p-3 mb-6"><i class="fa-solid fa-circle-info mr-1"></i> Public snippets require Admin review. Private snippets are saved instantly without approval.</p>
 
             <form id="snippet-form" class="space-y-5">
               <div>
-                <label class="block text-xs font-bold uppercase mb-1">Judul Snippet</label>
-                <input type="text" id="title" required placeholder="Contoh: Pluck Deep Array Function" class="w-full border-2 border-border-color p-3 bg-surface text-sm font-medium focus:outline-none">
+                <label class="nb-label" for="title">Snippet Title</label>
+                <input type="text" id="title" required placeholder="e.g. Pluck Deep Array Function" class="nb-input">
               </div>
 
               <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
-                  <label class="block text-xs font-bold uppercase mb-1">Bahasa / Framework</label>
-                  <select id="language" class="w-full border-2 border-border-color p-3 bg-surface text-sm font-bold focus:outline-none">
-                    <option value="JavaScript" selected>JavaScript</option>
-                    <option value="HTML">HTML</option>
-                    <option value="CSS">CSS</option>
-                    <option value="Dart">Dart</option>
-                    <option value="PHP">PHP</option>
-                    <option value="Python">Python</option>
-                    <option value="SQL">SQL</option>
-                  </select>
+                  <label class="nb-label" for="language">Language / Framework</label>
+                  <select id="language" class="nb-input cursor-pointer">${langOptions('JavaScript')}</select>
                 </div>
                 <div>
-                  <label class="block text-xs font-bold uppercase mb-1">Tags (Pisahkan koma)</label>
-                  <input type="text" id="tags" placeholder="js, array, helper" class="w-full border-2 border-border-color p-3 bg-surface text-sm font-medium focus:outline-none">
+                  <label class="nb-label" for="tags">Tags (comma separated)</label>
+                  <input type="text" id="tags" placeholder="js, array, helper" class="nb-input">
                 </div>
               </div>
 
               <div>
-                <label class="block text-xs font-bold uppercase mb-1">Isi Kode</label>
-                <textarea id="code_content" rows="10" required placeholder="// Tulis kodenya di sini..." class="w-full border-2 border-border-color p-3 bg-code-bg text-white font-mono text-xs sm:text-sm focus:outline-none"></textarea>
+                <label class="nb-label" for="code_content">Code</label>
+                <textarea id="code_content" rows="10" required placeholder="// Write your code here..." class="nb-input font-mono text-sm" style="background:#000;color:#fff" spellcheck="false"></textarea>
               </div>
 
-              <div class="flex items-center space-x-3">
-                <input type="checkbox" id="is_public" checked class="w-5 h-5 border-2 border-border-color accent-primary">
-                <label for="is_public" class="font-bold text-xs sm:text-sm">Publikasikan Snippet ini (Membutuhkan konfirmasi Admin)</label>
-              </div>
+              <label for="is_public" class="flex items-center gap-3 border-4 border-black bg-neo-muted p-3 cursor-pointer">
+                <input type="checkbox" id="is_public" checked class="w-6 h-6 shrink-0" style="accent-color:#000">
+                <span class="text-sm font-black uppercase">Publish this snippet (requires Admin approval)</span>
+              </label>
 
-              <div class="flex flex-col-reverse sm:flex-row items-center justify-end gap-3 pt-4 border-t-2 border-border-color">
-                <a href="#/dashboard" class="w-full sm:w-auto text-center border-2 border-border-color px-5 py-2 font-bold text-sm bg-surface shadow-neubrutal-sm hover:translate-x-0.5 hover:translate-y-0.5">Batal</a>
-                <button type="submit" class="w-full sm:w-auto bg-primary border-2 border-border-color px-6 py-2 font-bold text-sm shadow-neubrutal hover:shadow-neubrutal-sm hover:translate-x-0.5 hover:translate-y-0.5"><i class="fa-solid fa-paper-plane mr-1"></i> Simpan Snippet</button>
+              <div class="flex flex-col-reverse sm:flex-row items-stretch sm:justify-end gap-3 pt-5 border-t-4 border-black">
+                <a href="#/dashboard" class="nb-btn nb-btn-white w-full sm:w-auto">Cancel</a>
+                <button type="submit" class="nb-btn nb-btn-red w-full sm:w-auto h-14"><i class="fa-solid fa-paper-plane"></i> Save Snippet</button>
               </div>
             </form>
           </div>
-        </div>
-      `;
+        </div>`;
 
       container.innerHTML = await renderLayout('new', contentHtml);
 
@@ -764,55 +809,38 @@
         const code_content = document.getElementById('code_content').value;
         const tagsRaw = document.getElementById('tags').value;
         const is_public = document.getElementById('is_public').checked;
-
         const tags = tagsRaw ? tagsRaw.split(',').map(t => t.trim()).filter(Boolean) : [];
 
-        // Ditegaskan: Jika private (!is_public) ATAU dibuat Admin, is_approved otomatis true
+        // Private OR created by Admin => automatically approved
         const isApprovedStatus = (!is_public) || (userRole === 'admin');
 
         const { error } = await db.from('snippets').insert([{
-          user_id: session.user.id,
-          title,
-          language,
-          code_content,
-          tags,
-          is_public,
-          is_approved: isApprovedStatus
+          user_id: session.user.id, title, language, code_content, tags, is_public, is_approved: isApprovedStatus
         }]);
 
         if (error) {
-          alert("Gagal menyimpan snippet: " + error.message);
+          toast("Failed to save snippet: " + error.message, 'err');
         } else {
-          if (!is_public) {
-            alert("Snippet private berhasil disimpan!");
-          } else if (userRole === 'admin') {
-            alert("Snippet publik berhasil diterbitkan!");
-          } else {
-            alert("Snippet publik berhasil dikirim! Menunggu konfirmasi dari Admin.");
-          }
+          if (!is_public) toast("Private snippet saved!");
+          else if (userRole === 'admin') toast("Public snippet published!");
+          else toast("Public snippet submitted! Awaiting Admin approval.", 'info');
           location.hash = '#/dashboard';
         }
       });
     }
 
+    // ================= COPY =================
     window.copySnippetCode = function(btn, encodedCode) {
       const code = decodeURIComponent(encodedCode);
       navigator.clipboard.writeText(code).then(() => {
-        const originalText = btn.innerHTML;
-        btn.innerHTML = '<i class="fa-solid fa-check mr-1"></i> Copied!';
-        btn.classList.add('bg-secondary');
-        setTimeout(() => {
-          btn.innerHTML = originalText;
-          btn.classList.remove('bg-secondary');
-        }, 1500);
-      });
+        const original = btn.innerHTML;
+        btn.innerHTML = '<i class="fa-solid fa-check"></i> Copied!';
+        btn.style.background = 'var(--muted)';
+        setTimeout(() => { btn.innerHTML = original; btn.style.background = ''; }, 1500);
+      }).catch(() => toast("Failed to copy to clipboard.", 'err'));
     }
 
-    function escapeHtml(str) {
-      return str.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#039;");
-    }
-
-    // --- HASH ROUTER ---
+    // ================= ROUTER =================
     const routes = {
       "/": renderDashboard,
       "/dashboard": renderDashboard,
@@ -826,10 +854,8 @@
     async function router() {
       const hash = location.hash.slice(1) || "/dashboard";
       const segments = hash.split("/");
-      const baseRoute = "/" + segments[1];
-      
+      const baseRoute = "/" + segments[1].split('?')[0];
       const viewFunc = routes[baseRoute] || routes[hash] || renderDashboard;
-      
       const appContainer = document.getElementById('app');
       appContainer.innerHTML = '';
       await viewFunc(appContainer, hash);
